@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2017/07/23/redis-sorted-set/">
+    
+    
+    <title>使用redis的有序集合实现排行榜功能 | SecondPlayer&#39;s Blog | It&#39;s better to burn out than to fade away.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Redis">
+    <meta name="description" content="排行榜是业务开发中常见的一个场景，如何设计一个好的数据结构能够满足高效实时的查询，下面我们结合一个实际例子来讨论一下。 场景选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供如下接口：  接口1：返回TOP 10的选手信息及投票数 接口2：返回活动总参与选手数及总投票数 接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数  基于">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用redis的有序集合实现排行榜功能">
+<meta property="og:url" content="http://www.secondplayer.top/2017/07/23/redis-sorted-set/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="排行榜是业务开发中常见的一个场景，如何设计一个好的数据结构能够满足高效实时的查询，下面我们结合一个实际例子来讨论一下。 场景选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供如下接口：  接口1：返回TOP 10的选手信息及投票数 接口2：返回活动总参与选手数及总投票数 接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数  基于">
+<meta property="og:locale" content="zh">
+<meta property="og:updated_time" content="2017-09-04T15:34:43.987Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用redis的有序集合实现排行榜功能">
+<meta name="twitter:description" content="排行榜是业务开发中常见的一个场景，如何设计一个好的数据结构能够满足高效实时的查询，下面我们结合一个实际例子来讨论一下。 场景选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供如下接口：  接口1：返回TOP 10的选手信息及投票数 接口2：返回活动总参与选手数及总投票数 接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数  基于">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">使用redis的有序集合实现排行榜功能</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">使用redis的有序集合实现排行榜功能</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-07-23T05:43:36.000Z" itemprop="datePublished" class="page-time">
+  2017-07-23
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#场景"><span class="post-toc-number">1.</span> <span class="post-toc-text">场景</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于数据库的方案"><span class="post-toc-number">2.</span> <span class="post-toc-text">基于数据库的方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于redis的方案"><span class="post-toc-number">3.</span> <span class="post-toc-text">基于redis的方案</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#redis的有序集合相关命令"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">redis的有序集合相关命令</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口实现"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">接口实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#redis与数据库的同步"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">redis与数据库的同步</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-redis-sorted-set"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">使用redis的有序集合实现排行榜功能</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-07-23 13:43:36" datetime="2017-07-23T05:43:36.000Z"  itemprop="datePublished">2017-07-23</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>排行榜是业务开发中常见的一个场景，如何设计一个好的数据结构能够满足高效实时的查询，下面我们结合一个实际例子来讨论一下。</p>
+<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供如下接口：</p>
+<ul>
+<li>接口1：返回TOP 10的选手信息及投票数</li>
+<li>接口2：返回活动总参与选手数及总投票数</li>
+<li>接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数</li>
+</ul>
+<h2 id="基于数据库的方案"><a href="#基于数据库的方案" class="headerlink" title="基于数据库的方案"></a>基于数据库的方案</h2><p>首先需要一张表存储投票记录，一次投票就是一条记录。这张表相当于投票明细，判断每人只投一张票以及最多投四张表都依赖对这张表的查询。<br>如果直接对这张表做TOP 10的查询，则需要根据选手id做聚合查询，这样每次查询必然耗时。为了优化查询，可以增加另一张排行榜表，用一个定时任务每隔一段时间对原表做聚合查询，然后将结果写进排行榜表里，表里包含投票数及排名的字段，这样查询TOP 10和排名的时候直接查这张表。引入另一张表加快了性能，但牺牲了实时性，活动说明里需加上类似“榜单数据每10分钟同步一次”的话来告知用户。</p>
+<h2 id="基于redis的方案"><a href="#基于redis的方案" class="headerlink" title="基于redis的方案"></a>基于redis的方案</h2><p>对于排行榜的需求，redis有一个数据结构非常适合做这件事，那就是有序集合(sorted set)。</p>
+<h3 id="redis的有序集合相关命令"><a href="#redis的有序集合相关命令" class="headerlink" title="redis的有序集合相关命令"></a>redis的有序集合相关命令</h3><p>有序集合和集合一样可以存储字符串，另外有序集合的成员可以关联一个分数(score)，这个分数用于集合排序。下面以投票为例说明常见的命令，vote_activity是有序集合的key。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">#给Alice投票</div><div class="line">redis&gt; zincrby vote_activity 1 Alice</div><div class="line">&quot;1&quot; </div><div class="line">#给Bob投票</div><div class="line">redis&gt; zincrby vote_activity 1 Bob</div><div class="line">&quot;1&quot;</div><div class="line">#给Alice投票</div><div class="line">redis&gt; zincrby vote_activity 1 Alice</div><div class="line">&quot;2&quot;</div><div class="line">#查看Alice投票数</div><div class="line">redis&gt; zscore vote_activity Alice</div><div class="line">&quot;2&quot;</div><div class="line">#获取Alice排名(从高到低，zero-based)</div><div class="line">redis&gt; zrevrank vote_activity Alice</div><div class="line">(integer) 0</div><div class="line">#获取前10名(从高到低)</div><div class="line">redis&gt; zrevrange vote_activity 0 9</div><div class="line">1) &quot;Alice&quot;</div><div class="line">2) &quot;Bob&quot;</div><div class="line">#获取前10名及对应的分数(从高到低)</div><div class="line">redis&gt; zrevrange vote_activity 0 9 withscores</div><div class="line">1) &quot;Alice&quot;</div><div class="line">2) &quot;2&quot;</div><div class="line">3) &quot;Bob&quot;</div><div class="line">4) &quot;1&quot;</div><div class="line">#获取总参与选手数</div><div class="line">redis&gt; zcard vote_activity</div><div class="line">(integer) 2</div></pre></td></tr></table></figure></p>
+<h3 id="接口实现"><a href="#接口实现" class="headerlink" title="接口实现"></a>接口实现</h3><p>回到最开始的场景，大部分需求都已经得到满足，还剩下两个数据需要单独说一下。接口2中的总投票数没有直接的接口获得，一种方法是先用<a href="https://redis.io/commands/zrange" target="_blank" rel="external">ZRANGE</a>遍历所有的key，然后对score进行求和，另一种方法是对总票数单独用一个数据结构存储。接口3的距离上一名差的票数，先用<a href="https://redis.io/commands/zrevrank" target="_blank" rel="external">ZREVRANK</a>获取自己排名，然后用<a href="https://redis.io/commands/zrevrange" target="_blank" rel="external">ZREVRANGE</a>获取上一排名的分数，最后用自己的分数减去上一名的分数即可，代码示例如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_next_step</span><span class="params">(redis_key, member)</span>:</span></div><div class="line">    next_step = <span class="keyword">None</span></div><div class="line">    score = redis.zscore(redis_key, member)</div><div class="line">    rank = redis.zrevrank(redis_key, member)</div><div class="line">    <span class="keyword">if</span> rank &gt; <span class="number">0</span>:</div><div class="line">        next_member = redis.zrevrange(redis_key, rank - <span class="number">1</span>, rank - <span class="number">1</span>, withscores=<span class="keyword">True</span>)</div><div class="line">        next_step = next_member[<span class="number">0</span>][<span class="number">1</span>] - score</div><div class="line">    <span class="keyword">return</span> next_step</div></pre></td></tr></table></figure></p>
+<p>另外如果两个key的score相同，排序逻辑是按照key的字母序排序。在有些情况下这个可能不满足实际要求，因此需要按实际情况重新设计key。比如如果要求同分数情况下按时间排序，那么key最好加上时间戳前缀。</p>
+<h3 id="redis与数据库的同步"><a href="#redis与数据库的同步" class="headerlink" title="redis与数据库的同步"></a>redis与数据库的同步</h3><p>redis通常是作为缓存层加速查询的，如果数据没有做持久化则有概率会丢失数据。一个方案是用定时任务定时同步redis与数据库的数据，数据库里存储着原始数据，通过计算数据库的数据和redis做对比，可以修正由于redis不稳定导致的数据不一致。这里需要注意的是在同步过程时redis的数据有可能还在增长，因此最好先读redis的数据，然后记下时间，查询指定时间段里的数据库的数据，最后再用<a href="https://redis.io/commands/zincrby" target="_blank" rel="external">ZINCRBY</a>增量修正redis数据，而不是直接用<a href="https://redis.io/commands/zadd" target="_blank" rel="external">ZADD</a>覆盖redis数据。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>redis的有序集合是一个非常高效的数据结构，可以替代数据库里一些很难实现的操作。它的一个典型应用场景就是排行榜，通过ZRANK可以快速得到用户的排名，通过ZRANGE可以快速得到TOP N的用户列表，它们的复杂度都是O(log(N))，用来替代数据库查询可以大大提升性能。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2017-09-04T15:34:43.987Z" itemprop="dateUpdated">2017-09-04 23:34:43</time>
+</span><br>
+
+
+        
+        <a href="/2017/07/23/redis-sorted-set/" target="_blank" rel="external">http://www.secondplayer.top/2017/07/23/redis-sorted-set/</a>
+        
+    </div>
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&title=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&title=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/07/23/redis-sorted-set/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/07/16/redis-distribution-lock/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">使用redis实现分布式锁</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2017</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&title=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&title=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/07/23/redis-sorted-set/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用redis的有序集合实现排行榜功能》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/07/23/redis-sorted-set/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMUlEQVR42u3aS27DMAxF0ex/0+60g1q5j7SBiroeGanh6mTA8Pf54Ou6uX7/df38+p13nzx8yZAhY1vGtbzIM+uDrj9Zs4P/KEOGjAMY60PwkHrhi7+NfEEyZMiQsb4nKd06+JJ7GTJkyEgZBFMrSmXIkCGjU8TWCtpOgfpKLS5DhowNGZ0g+Pb9K/MNGTJkbMW4wosUpSRcPnwqGTJkjGbwAJdinmq3BeeRIUPGYYzaUkUt1PJBaZC9ypAhYxAjXW6oDTLTVlo8nJAhQ8YxDB7sau2zWls/+MWQIUPGaAZZp+i0xggmDf0yZMg4h8HTvs7qAyGliakMGTLOZLzdgOMFLQ/BaDAgQ4aMEYxa8peuXBQTPoyUIUPGbEZ6RF6+8oCbgm8rchkyZIxjXOHFRwudFY24PpUhQ8ZoRmckwOeJfGzAfwBuw64MGTLGMXgy12n0k5Baex7V2TJkyBjBSJchSMLHv770mT+QMmTIGM3gATRdyODhNT36lyJWhgwZBzD4i2otMw4mAR31DmXIkDGI0UnjeH8+HWrGyxYyZMgYzSCvS9ttPHNLS99iaihDhowNGf1lC57Y1YIposqQIWM0I12hqBW6vIWXNvJimAwZMrZlpGOAzsoFX8jgZ5AhQ8Y5DN6CTwPis2nfl1JWhgwZMvARecqIxpPkbTJkyJCBl8b6zTs+Fn044MqQIePfM3ip2U8ZSapH2nAyZMg4h9FP2tJmHB8k1NJHGTJkDGL8AJrhN/XlLBh+AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
