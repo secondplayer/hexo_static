@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2017/09/08/recommendation-system-book/">
+    
+    
+    <title>常见推荐系统介绍 | SecondPlayer&#39;s Blog | It&#39;s better to burn out than to fade away.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="推荐系统,读书笔记">
+    <meta name="description" content="本文主要是对项亮的推荐系统实践部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。                                                                                              《推荐系统实践》封面              什么是推荐系统随">
+<meta name="keywords" content="推荐系统,读书笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见推荐系统介绍">
+<meta property="og:url" content="http://www.secondplayer.top/2017/09/08/recommendation-system-book/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="本文主要是对项亮的推荐系统实践部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。                                                                                              《推荐系统实践》封面              什么是推荐系统随">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-7457fe3c0981d437.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-b37cbd23e2424475.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-09-07T16:09:51.518Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常见推荐系统介绍">
+<meta name="twitter:description" content="本文主要是对项亮的推荐系统实践部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。                                                                                              《推荐系统实践》封面              什么是推荐系统随">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2245716-7457fe3c0981d437.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">常见推荐系统介绍</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">常见推荐系统介绍</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-09-07T16:07:37.000Z" itemprop="datePublished" class="page-time">
+  2017-09-08
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是推荐系统"><span class="post-toc-number">1.</span> <span class="post-toc-text">什么是推荐系统</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#推荐系统的应用"><span class="post-toc-number">2.</span> <span class="post-toc-text">推荐系统的应用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#推荐系统实验方法"><span class="post-toc-number">3.</span> <span class="post-toc-text">推荐系统实验方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#推荐系统评测指标"><span class="post-toc-number">4.</span> <span class="post-toc-text">推荐系统评测指标</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#常见推荐系统算法"><span class="post-toc-number">5.</span> <span class="post-toc-text">常见推荐系统算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#协同过滤算法"><span class="post-toc-number">6.</span> <span class="post-toc-text">协同过滤算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于物品的协同过滤算法"><span class="post-toc-number">7.</span> <span class="post-toc-text">基于物品的协同过滤算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于用户的协同过滤算法"><span class="post-toc-number">8.</span> <span class="post-toc-text">基于用户的协同过滤算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#隐语义模型"><span class="post-toc-number">9.</span> <span class="post-toc-text">隐语义模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#三种算法的优缺点比较"><span class="post-toc-number">10.</span> <span class="post-toc-text">三种算法的优缺点比较</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">11.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-recommendation-system-book"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">常见推荐系统介绍</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-09-08 00:07:37" datetime="2017-09-07T16:07:37.000Z"  itemprop="datePublished">2017-09-08</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本文主要是对项亮的<a href="https://book.douban.com/subject/10769749/" target="_blank" rel="external">推荐系统实践</a>部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-7457fe3c0981d437.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="《推荐系统实践》封面" title="">
+                </div>
+                <div class="image-caption">《推荐系统实践》封面</div>
+            </figure>
+<h2 id="什么是推荐系统"><a href="#什么是推荐系统" class="headerlink" title="什么是推荐系统"></a>什么是推荐系统</h2><p>随着信息技术和互联网的快速发展，人们逐渐从信息匮乏的时代走入了信息过载的时代。每天都有海量的信息被生产出来，用户如何从中找到自己感兴趣的内容变得越来越困难，内容生产者也在想方设法让自己生成的内容从海量信息中脱颖而出。为了解决信息过载的问题，历史上出现过的代表方案有分类目录和搜索引擎，这两者都要求用户明确知道自己需要的内容关键词。而推荐系统不需要用户提供明确的需求，而是通过分析用户的历史行为给用户的兴趣建模，从而主动给用户推荐能够满足它们兴趣的内容。推荐系统通过发掘用户的行为，找到用户的个性化需求，从而将<a href="https://zh.wikipedia.org/wiki/%E9%95%BF%E5%B0%BE" target="_blank" rel="external">长尾</a>商品准确地推荐给需要它的用户，帮助用户发现那些他们感兴趣但很难发现的商品。</p>
+<h2 id="推荐系统的应用"><a href="#推荐系统的应用" class="headerlink" title="推荐系统的应用"></a>推荐系统的应用</h2><p>在互联网的各类网站中都可以看到推荐系统的应用，尽管不同网站使用的技术不同，但总的来说几乎所有的推荐系统应用都是由前台的展示页面、后台的日志系统以及推荐算法系统构成。</p>
+<ul>
+<li>电子商务：<a href="https://www.taobao.com/" target="_blank" rel="external">淘宝</a>、<a href="https://www.jd.com/" target="_blank" rel="external">京东</a>、<a href="https://www.amazon.com/" target="_blank" rel="external">亚马逊</a></li>
+<li>电影/视频：<a href="https://www.netflix.com/" target="_blank" rel="external">Netflix</a>、<a href="https://www.youtube.com/" target="_blank" rel="external">YouTube</a>、<a href="http://www.iqiyi.com/" target="_blank" rel="external">爱奇艺</a></li>
+<li>音乐：<a href="http://www.pandora.com/" target="_blank" rel="external">Pandora</a>、<a href="http://music.163.com/" target="_blank" rel="external">网易云音乐</a>、<a href="https://douban.fm/" target="_blank" rel="external">豆瓣FM</a></li>
+<li>社交网络：<a href="https://www.facebook.com/" target="_blank" rel="external">Facebook</a>、<a href="https://twitter.com/" target="_blank" rel="external">Twitter</a>、<a href="http://www.linkedin.com/" target="_blank" rel="external">LinkedIn</a>、<a href="http://weibo.com/" target="_blank" rel="external">新浪微博</a></li>
+<li>个性化阅读：<a href="http://digg.com/" target="_blank" rel="external">Digg</a>、<a href="https://flipboard.com/" target="_blank" rel="external">Flipboard</a>、<a href="http://www.toutiao.com/" target="_blank" rel="external">今日头条</a></li>
+<li>基于位置的服务：<a href="https://foursquare.com/" target="_blank" rel="external">Foursquare</a></li>
+<li>个性化广告：<a href="https://developers.facebook.com/docs/audience-network/" target="_blank" rel="external">Facebook Audience Network</a></li>
+</ul>
+<h2 id="推荐系统实验方法"><a href="#推荐系统实验方法" class="headerlink" title="推荐系统实验方法"></a>推荐系统实验方法</h2><p>在推荐系统中，主要有三种评测推荐效果的实验方法：离线实验、用户调查、在线实验。</p>
+<h2 id="推荐系统评测指标"><a href="#推荐系统评测指标" class="headerlink" title="推荐系统评测指标"></a>推荐系统评测指标</h2><ul>
+<li>用户满意度：用户的主观感受，主要通过用户调查的方式获得，也可以间接从用户行为统计中得到。</li>
+<li>预测准确度：度量一个推荐系统或推荐算法预测用户行为的能力。评分预测的预测准确度一般通过计算测试集和训练集的均方根误差(RMSE)和平均绝对误差(MAE)得到。TopN推荐的预测准确度一般通过计算测试集和训练集的准确率(precison)和召回率(recall)得到。</li>
+</ul>
+<blockquote>
+<p>令r<sub>ui</sub>是用户u对物品i的实际评分，r<sup>^</sup><sub>ui</sub>是推荐算法给出的预测评分，T是测试集，那么：<br>RMSE = sqrt(Σ<sub>u,i∈T</sub>(r<sub>ui</sub>-r<sup>^</sup><sub>ui</sub>)<sup>2</sup> / |T|)<br>MAE = Σ<sub>u,i∈T</sub>|r<sub>ui</sub>-r<sup>^</sup><sub>ui</sub>| / |T|</p>
+<p>令R(u)是用户u在训练集上的推荐结果，T(u)是用户u在测试集上的行为结果，U是用户集合，那么：<br> Precision = Σ<sub>u∈U</sub>|R(u) ∩ T(u)| / Σ<sub>u∈U</sub>|R(u)|<br> Recall = Σ<sub>u∈U</sub>|R(u) ∩ T(u)| / Σ<sub>u∈U</sub>|T(u)|</p>
+</blockquote>
+<ul>
+<li>覆盖率：描述一个推荐系统对物品长尾的发掘能力。</li>
+</ul>
+<blockquote>
+<p>假设用户集合为U，物品集合为I，推荐系统给每个用户推荐一个长度为N的物品列表R(u)，那么：<br>Coverage = |∪<sub>u∈U</sub>R(u)| / |I|</p>
+</blockquote>
+<ul>
+<li>多样性：为了满足用户广泛的兴趣，推荐列表需要能够覆盖用户不同的兴趣领域。</li>
+<li>新颖性：是指给用户推荐那些他们以前没听说过的商品。</li>
+<li>惊喜度(serendipity)：如果推荐结果和用户的历史兴趣不相似，但却让用户觉得满意，那么就可以说推荐结果的惊喜度很高。</li>
+<li>信任度：提高信任度的方法是给出合理的推荐解释。</li>
+<li>实时性：推荐系统需要实时地更新推荐列表来满足用户新的行为变化，并且需要能够将新加入系统的物品推荐给用户。</li>
+<li>健壮性(robust)：衡量一个推荐系统抗击作弊的能力。</li>
+</ul>
+<p>在众多指标中，作者认为：对于可以离线优化的指标，应该在给定覆盖率、多样性、新颖性等限制条件下，尽量优化预测准确度。</p>
+<h2 id="常见推荐系统算法"><a href="#常见推荐系统算法" class="headerlink" title="常见推荐系统算法"></a>常见推荐系统算法</h2><p>推荐系统是联系用户和物品的媒介，而推荐联系用户和物品的方式主要有3种，如下图所示。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-b37cbd23e2424475.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="3种联系用户和物品的推荐系统" title="">
+                </div>
+                <div class="image-caption">3种联系用户和物品的推荐系统</div>
+            </figure>
+<p>第一种方法，首先找到用户喜欢的物品，然后找到与这些物品相似的物品推荐给用户。基于这种方法可以给出如下的推荐解释：购买了该商品的用户也经常购买这些商品。这种方法通常被称为基于物品的协同过滤算法(item-based collaborative filtering)。<br>第二种方法，首先找到和用户有相似兴趣的其他用户，然后推荐这些其他用户喜欢的物品。这种方法通常被称为基于用户的协同过滤算法(user-based collaborative filtering)。<br>第三种方法，首先找到用户感兴趣的物品特征，然后推荐包含这些特征的物品。这种方法核心思想是通过隐含特征联系用户兴趣和物品，通常被称为隐语义模型算法(latent factor model)。</p>
+<h2 id="协同过滤算法"><a href="#协同过滤算法" class="headerlink" title="协同过滤算法"></a>协同过滤算法</h2><p>个性化推荐系统的一个重要算法是基于用户行为分析，学术界一般将这种类型的算法称为协同过滤算法(collaborative filtering)。</p>
+<blockquote>
+<p>顾名思义，协同过滤就是指用户可以齐心协力，通过不断地和网站互动，使自己的推荐列表能够不断过滤掉自己不感兴趣的物品，从而越来越满足自己的需求。</p>
+</blockquote>
+<h2 id="基于物品的协同过滤算法"><a href="#基于物品的协同过滤算法" class="headerlink" title="基于物品的协同过滤算法"></a>基于物品的协同过滤算法</h2><p>基于物品的协同过滤算法(以下简称ItemCF)，是目前业界应用最多的算法，最早由电子商务公司亚马逊提出。ItemCF算法给用户推荐那些和他们之前喜欢的物品相似的物品，它的主要步骤分为两步。</p>
+<blockquote>
+<p>(1) 计算物品之间的相似度<br>   (2) 根据物品的相似度和用户的历史行为给用户生成推荐列表</p>
+</blockquote>
+<p>第一步计算相似度可用余弦相似度公式</p>
+<blockquote>
+<p>令N(i)是喜欢物品i的用户集合，那么物品i和物品j的相似度可定义为：<br>   w<sub>ij</sub> = |N(i) ∩ N(j)| / sqrt(|N(i)||N(j)|)</p>
+</blockquote>
+<p>第二步计算用户对物品的兴趣，如下公式的含义是：和用户历史上感兴趣的物品越相似的物品，越有可能在用户的推荐列表中获得比较高的排名。</p>
+<blockquote>
+<p>令p<sub>uj</sub>为用户u对物品j的兴趣，w<sub>ji</sub>是物品j和物品i的相似度，r<sub>ui</sub>是用户u对物品i的兴趣（对于隐反馈数据集，如果用户u对物品i有过行为，可简单令r<sub>ui</sub>=1），S(j,K)是和物品j最相似的K个物品的集合，那么：<br>   p<sub>uj</sub> = Σ<sub>i∈N(u)∩S(j,K)</sub> w<sub>ji</sub>r<sub>ui</sub></p>
+</blockquote>
+<p>最后选取该用户兴趣值最高的N的物品作为推荐列表。</p>
+<h2 id="基于用户的协同过滤算法"><a href="#基于用户的协同过滤算法" class="headerlink" title="基于用户的协同过滤算法"></a>基于用户的协同过滤算法</h2><p>基于用户的协同过滤算法(以下简称UserCF)，是推荐系统中最古老的算法。UserCF算法先找到和他有相似兴趣的其他用户，然后把那些用户喜欢的、而他没有听说过的物品推荐给他，它的主要步骤分为两步。</p>
+<blockquote>
+<p>(1) 找到和目标用户兴趣相似的用户集合<br>   (2) 找到这个集合中的用户喜欢的，且目标用户没有听说过的物品推荐给目标用户</p>
+</blockquote>
+<p>第一步计算用户的兴趣相似度可用余弦相似度公式</p>
+<blockquote>
+<p>令N(u)是用户u曾经有过正反馈的物品集合，那么用户u和用户v的相似度可定义为：<br>   w<sub>uv</sub> = |N(u) ∩ N(v)| / sqrt(|N(u)||N(v)|)</p>
+</blockquote>
+<p>第二步计算用户对物品的兴趣</p>
+<blockquote>
+<p>令p<sub>ui</sub>为用户u对物品i的兴趣，w<sub>uv</sub>是用户u和用户v的相似度，r<sub>vi</sub>是用户v对物品i的兴趣（对于隐反馈数据集，如果用户v对物品i有过行为，可简单令r<sub>vi</sub>=1），S(u,K)是和用户u兴趣最相似的K个用户的集合，那么：<br>   p<sub>ui</sub> = Σ<sub>v∈N(i)∩S(u,K)</sub> w<sub>uv</sub>r<sub>vi</sub></p>
+</blockquote>
+<p>最后选取该用户兴趣值最高的N的物品作为推荐列表。</p>
+<h2 id="隐语义模型"><a href="#隐语义模型" class="headerlink" title="隐语义模型"></a>隐语义模型</h2><p>隐语义模型算法(以下简称LFM)，是最近几年推荐系统领域最为热门的研究话题。LFM算法的核心思想是通过隐含特征联系用户兴趣和物品，它的主要步骤分为三步。</p>
+<blockquote>
+<p>(1) 对物品进行分类<br>   (2) 确定用户对哪些类的物品感兴趣以及感兴趣的程度<br>   (3) 对于给定的类，确定物品在这个类的权重，并且选择性地推荐给用户</p>
+</blockquote>
+<p>关于如何给物品分类，一个简单方案是由编辑来手动分类，但这样存在很强的主观性和较大的工作量。为了解决这个困难，研究人员提出可以从用户数据出发，基于隐含语义分析技术(latent variable analysis)自动找到哪些类，然后进行个性化推荐。隐含语义分析技术有很多著名的模型和方法，比如pLSA、LDA、隐含类别模型、隐含主题模型、矩阵分解等。</p>
+<blockquote>
+<p>LFM通过如下公式计算用户u对物品i的兴趣：<br>   Preference<sub>ui</sub> =  Σ<sub>k∈[1,K]</sub> p<sub>u,k</sub>q<sub>i,k</sub><br>   其中p<sub>u,k</sub>度量了用户u的兴趣和第k个隐类的关系，而q<sub>i,k</sub>度量了第k个隐类和物品i的关系。这两个参数的计算需要一点最优化理论或者机器学习的知识，这里不多作介绍。</p>
+</blockquote>
+<h2 id="三种算法的优缺点比较"><a href="#三种算法的优缺点比较" class="headerlink" title="三种算法的优缺点比较"></a>三种算法的优缺点比较</h2><ul>
+<li>LFM是一种基于机器学习的算法，有较好的理论基础。ItemCF/UserCF是基于邻域的方法，更多的是一种基于统计的方法，没有学习过程。</li>
+<li>假设有M个用户和N个物品，选取F个隐类。UserCF需要存储用户的相似度矩阵，存储空间是O(M*M)。ItemCF需要存储物品的相似度矩阵，存储空间是O(N*N)。LFM需要的存储空间是O(F*(M+N))。如果用户数很多，UserCF将会占据很大的内存。如果物品数很多，ItemCF将会占据很大的内存。LFM存储空间最少，这在M和N很大时可以很好地节省离线计算的内存。</li>
+<li>假设有M个用户和N个物品和K条用户对物品的行为记录。那么，UserCF计算用户表的时间复杂度是O(N*(K/N)<sup>2</sup>)，而ItemCF计算物品表的时间复杂度是O(M*(K/M)<sup>2</sup>)。而对于LFM，如果用F个隐类，迭代S次，那么它的时间复杂度是O(K*F*S)。在一般情况下，LFM的时间复杂度要稍微高于UserCF和ItemCF，主要是因为该算法需要多次迭代。</li>
+<li>ItemCF算法支持很好的推荐解释，它可以利用用户的历史行为解释推荐结果，但LFM无法提供这样的解释。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在互联网应用中可以看到大量推荐系统的应用，它主要解决了信息过载的问题，通过算法主动帮助用户找到自己感兴趣的内容。常见的推荐系统算法有三种，分别代表三种联系用户和物品的方式，它们是：基于物品的协同过滤算法(ItemCF)，基于用户的协同过滤算法(ItemCF)，隐语义模型算法(LFM)。三种方法各有优劣，需要根据实际场景选择合适的算法，通过不断优化指标找到最优算法。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2017-09-07T16:09:51.518Z" itemprop="dateUpdated">2017-09-08 00:09:51</time>
+</span><br>
+
+
+        
+        <a href="/2017/09/08/recommendation-system-book/" target="_blank" rel="external">http://www.secondplayer.top/2017/09/08/recommendation-system-book/</a>
+        
+    </div>
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/推荐系统/">推荐系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/读书笔记/">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&title=《常见推荐系统介绍》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&title=《常见推荐系统介绍》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/09/08/recommendation-system-book/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《常见推荐系统介绍》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/07/23/redis-sorted-set/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">使用redis的有序集合实现排行榜功能</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2017</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&title=《常见推荐系统介绍》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&title=《常见推荐系统介绍》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/09/08/recommendation-system-book/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《常见推荐系统介绍》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/09/08/recommendation-system-book/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtUlEQVR42u3awU4cMRAEUP7/p4nELQoMVd32QqQ3J7QkHj8O7t5qv73Fz/vHk3z+1SfPn//75Hs48ODh4eGNtv78muS3X/2cg/f7+WRNPDw8vGu854M4eUF7Ps/e1RYqPDw8vJ/ltW13e7jn6+Ph4eH9j7zk+G7//TMSDw8P77fx2rghDyOeV8gDi+tZCx4eHl43XSoGYL/h54vzPTw8PLzFVD0pEu1qeas92+Ffq+Hh4eFd4D3Hqe1BnG9xc7EgqQLR5A0PDw9vxEsWyg/09rfJW/LLB5+shoeHh3eBtx93zUZo+QWstrR8U/3w8PDwDvES2POm94143oLXe8bDw8O7wGsP67ypPdU656Vi2I/j4eHhxby8PW0LRt6sn4o5vpzv4eHh4V3g5aTZ8Z0HB/uRGB4eHt4reUXiu57Lt9cL2nAZDw8P7x5vFq0m5SGPEtqItm3i8fDw8O7xZmP+fAy2aZRnQTMeHh7e63ktZn/Q54Fy/TUADw8P7xAvXyIvIbNAtn1vdEEBDw8P7yW85Et+fgWqvUyQV7NhYcDDw8Nb804N+DeBxayVT0oaHh4e3g3e9b/cIow4dukKDw8P7ygvH8+3I/z8T5CHDvmQrL75hYeHh1fyTo3z23FaXmxmIzo8PDy827x8MJ8f9/koa9PWRyvg4eHhHeLtB1d5c7zBt+UHDw8P7zW8NjiYDcDawdimSODh4eHd4G1i2byEJJjN1tsBGx4eHt6G914+sygh327dND83+nh4eHgXeLMudD+ymuXNZ8sJHh4e3oaXF4M8xp0Vic1Q7cClATw8PLySl3/Jb0dZ+edXshY8PDy8H+W14PZCQNvpRzEEHh4e3i/gtSFCi2mvWH3zf/Hw8PCu8dogYBZV5FvfBBB4eHh4t3lt85ovNIs5khKymubh4eHhzXl/AJ8pu2Cd3SMtAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
