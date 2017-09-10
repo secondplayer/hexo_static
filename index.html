@@ -12,9 +12,13 @@
     <meta charset="utf-8">
     
     
+    <link rel="canonical" href="http://secondplayer.top/">
+    
     
     <title>SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
     
     
     <meta name="keywords" content="">
@@ -28,8 +32,8 @@
     
         <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
     
-    <link rel="shortcut icon" href="/">
-    <link rel="stylesheet" href="/css/style.css?v=1.6.13">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
     <script>window.lazyScripts=[]</script>
 
     <!-- custom head -->
@@ -45,19 +49,61 @@
     <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
         <i class="icon icon-lg icon-close"></i>
     </a>
-    <div class="brand-wrap" style="background-image:url(/)">
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
       <div class="brand">
         <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/">
+          <img src="/img/gravatar.png">
         </a>
         <hgroup class="introduce">
           <h5 class="nickname">secondplayer</h5>
-          <a href="mailto:undefined" class="mail">
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
         </hgroup>
       </div>
     </div>
     <div class="scroll-wrap flex-col">
       <ul class="nav">
+        
+            <li class="waves-block waves-effect active">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
         
       </ul>
     </div>
@@ -72,6 +118,20 @@
         </a>
         <div class="flex-col header-title ellipsis">SecondPlayer&#39;s Blog</div>
         
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
         
     </div>
 </header>
@@ -122,7 +182,15 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        本文主要是对项亮的推荐系统实践部分章节进行了一些总结，...
+        本文主要是对项亮的推荐系统实践部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。
+
+                
+                    
+                    
+                
+                《推荐系统实践》封面
+            
+什么是推荐...
     
 
         <a href="/2017/09/08/recommendation-system-book/" class="post-more waves-effect waves-button">
@@ -167,7 +235,13 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        排行榜是业务开发中常见的一个场景，如何设计一个好的数据...
+        排行榜是业务开发中常见的一个场景，如何设计一个好的数据结构能够满足高效实时的查询，下面我们结合一个实际例子来讨论一下。
+场景选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供如下接口：
+
+接口1：返回TOP 10的选手信息及投票数
+接口2：返回活动总参与选手数及总投票数
+接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数
+...
     
 
         <a href="/2017/07/23/redis-sorted-set/" class="post-more waves-effect waves-button">
@@ -212,7 +286,8 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        背景在类似秒杀这样的并发场景下，为了确保同一时刻只能允...
+        背景在类似秒杀这样的并发场景下，为了确保同一时刻只能允许一个用户访问资源，需要利用加锁的机制控制资源的访问权。如果服务只在单台机器上运行，可以简单地用一个内存变量进行控制。而在多台机器的系统上，则需要用分布式锁的机制进行并发控制。基于redis的一些特性，利用redis可以既方便又高效地模拟锁的实现。
+一个简单方案让我们先从一个简单的实现说起，这里用到了redis的两个命令，SETNX和EX...
     
 
         <a href="/2017/07/16/redis-distribution-lock/" class="post-more waves-effect waves-button">
@@ -257,7 +332,8 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        最近有时间折腾了一下建一个个人博客，在对比了几家之后，...
+        最近有时间折腾了一下建一个个人博客，在对比了几家之后，最终决定用Hexo作为框架，GitHub作为部署平台搭建博客。VPS选用的是AWS，新用户可以免费使用1年的EC2，足够用来体验了。
+申请VPSVPS指的是虚拟服务器，国内推荐用阿里云，国外推荐用Linode, Digital Ocean, AWS。我选择的是AWS，主要有几个原因，一是因为新用户可以试用免费1年，二是因为公司用的就是AW...
     
 
         <a href="/2016/06/12/hexo-blog-setup/" class="post-more waves-effect waves-button">
@@ -302,7 +378,8 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        Welcome to Hexo! This is yo...
+        Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+Qu...
     
 
         <a href="/2016/06/11/hello-world/" class="post-more waves-effect waves-button">
@@ -323,6 +400,15 @@
         <footer class="footer">
     <div class="top">
         
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
 
         <p>
             
@@ -332,7 +418,7 @@
         </p>
     </div>
     <div class="bottom">
-        <p><span>secondplayer &copy; 2017</span>
+        <p><span>secondplayer &copy; 2016 - 2017</span>
             <span>
                 
                 Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
@@ -346,19 +432,89 @@
 <a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
 
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/&title=SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/&title=SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=SecondPlayer's Blog&url=http://www.secondplayer.top/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABzUlEQVR42u3aO27DMBAFQN//0kqbIpLf7pJ0DIyqIBGkiYqH/fD1iq/r13X317s7k98svnBxccfc6/F6Bt3dn/yrzWfi4uIe5FbjKUmbhJUbcHFxv4ubRFhS9ODi4n4jtxdYSdGDi4v7P7lJ85MXK3lTtLFXw8XFnc4uRs3M/Oct811cXNwW9xpc+TC0Glu3b8TFxT3CrYbOc/QkxKQMetMa4eLibuY2BxOtNWo+Wr19Ji4u7hHu80PzBUmvfKke/8LFxT3Dnbymeqhifj8uLu5JblKgVNcq1XCMSi5cXNwj3N7hqjzgko9SbZ9wcXE/xa0em0iip1okFYIMFxd3M7daylQrkLygKVRnuLi4S7m9FqVXoOQxt2yJgouLO+bmS9Z8QVJoZibnRHBxcZdye+E1X8GOWilcXNzN3LXR01uy5kMTXFzcM9xeCzQ/epUH5R9Pw8XF3cy9ilceScmSNS+Dyt8JFxd3wJ2MRKtr0eo4dYTGxcUdc/PwmpcyeZC9aX5wcXGPcKvHI/Ila698wcXF/RZuL86q5VF5ioOLi/tRbm8UMh/LNqsnXFzcMTcPlyTsnoNs9DlwcXGPcKutSPUFeWu0eL6Li4vb4f4AWHDdRMf2z/cAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
     <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
 <script>
-var BLOG = { ROOT: '/', SHARE: , REWARD: false };
+var BLOG = { ROOT: '/', SHARE: true, REWARD: false };
 
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
 
 </script>
 
-<script src="/js/main.min.js?v=1.6.13"></script>
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
 
 
 
 
 
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 

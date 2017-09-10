@@ -12,9 +12,13 @@
     <meta charset="utf-8">
     
     
+    <link rel="canonical" href="http://secondplayer.top/2017/07/16/redis-distribution-lock/">
+    
     
     <title>使用redis实现分布式锁 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
     
     
     <meta name="keywords" content="Redis">
@@ -33,8 +37,8 @@
     
         <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
     
-    <link rel="shortcut icon" href="/">
-    <link rel="stylesheet" href="/css/style.css?v=1.6.13">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
     <script>window.lazyScripts=[]</script>
 
     <!-- custom head -->
@@ -45,24 +49,66 @@
 <body>
     <div id="loading" class="active"></div>
 
-    <aside id="menu"  >
+    <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
     <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
         <i class="icon icon-lg icon-close"></i>
     </a>
-    <div class="brand-wrap" style="background-image:url(/)">
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
       <div class="brand">
         <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/">
+          <img src="/img/gravatar.png">
         </a>
         <hgroup class="introduce">
           <h5 class="nickname">secondplayer</h5>
-          <a href="mailto:undefined" class="mail">
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
         </hgroup>
       </div>
     </div>
     <div class="scroll-wrap flex-col">
       <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
         
       </ul>
     </div>
@@ -77,6 +123,20 @@
         </a>
         <div class="flex-col header-title ellipsis">使用redis实现分布式锁</div>
         
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
         
     </div>
 </header>
@@ -103,6 +163,13 @@
 
 <div class="container body-wrap">
     
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#背景"><span class="post-toc-number">1.</span> <span class="post-toc-text">背景</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一个简单方案"><span class="post-toc-number">2.</span> <span class="post-toc-text">一个简单方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#利用时间戳取值的方案"><span class="post-toc-number">3.</span> <span class="post-toc-text">利用时间戳取值的方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#改进后的方案"><span class="post-toc-number">4.</span> <span class="post-toc-text">改进后的方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#最终方案"><span class="post-toc-number">5.</span> <span class="post-toc-text">最终方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
 <article id="post-redis-distribution-lock"
   class="post-article article-type-post fade" itemprop="blogPost">
 
@@ -115,6 +182,10 @@
 
 
             
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
@@ -133,18 +204,28 @@
         <blockquote class="post-copyright">
     <div class="content">
         
+<span class="post-time">
+    Last updated: <time datetime="2017-09-04T15:34:29.932Z" itemprop="dateUpdated">2017-09-04 23:34:29</time>
+</span><br>
 
+
+        
+        <a href="/2017/07/16/redis-distribution-lock/" target="_blank" rel="external">http://www.secondplayer.top/2017/07/16/redis-distribution-lock/</a>
         
     </div>
     <footer>
         <a href="http://www.secondplayer.top">
-            <img src="/" alt="secondplayer">
+            <img src="/img/gravatar.png" alt="secondplayer">
             secondplayer
         </a>
     </footer>
 </blockquote>
 
         
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
 
 
         <div class="post-footer">
@@ -153,6 +234,51 @@
 
 
             
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&title=《使用redis实现分布式锁》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&title=《使用redis实现分布式锁》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用redis实现分布式锁》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
 
 
         </div>
@@ -193,10 +319,53 @@
 
 
 
+<section class="comments" id="comments">
+    <div id="gitment_thread"></div>
+    <link rel="stylesheet" href="//unpkg.com/gitment/style/default.css">
+    <script src="//unpkg.com/gitment/dist/gitment.browser.js"></script>
+    <script>
+        var gitment = new Gitment({
+            owner: 'secondplayer',
+            repo: 'hexo_blog_gitment',
+            oauth: {
+                client_id: '9e75a4a9f7adb5033256',
+                client_secret: 'af911723044386f442f58135ea880f639a25041a',
+            },
+        })
+        gitment.render('comments')
+    </script>
+</section>
+
 
 
 
 </article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
 
 
 
@@ -205,6 +374,15 @@
         <footer class="footer">
     <div class="top">
         
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
 
         <p>
             
@@ -214,7 +392,7 @@
         </p>
     </div>
     <div class="bottom">
-        <p><span>secondplayer &copy; 2017</span>
+        <p><span>secondplayer &copy; 2016 - 2017</span>
             <span>
                 
                 Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
@@ -228,19 +406,89 @@
 <a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
 
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&title=《使用redis实现分布式锁》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&title=《使用redis实现分布式锁》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用redis实现分布式锁》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/07/16/redis-distribution-lock/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACsklEQVR42u3awW7qQAwFUP7/p/u2lRBwrz3zyuJkVUFIcibS2LX9eMTHz6/j9yfJr95//nzO87fPdz984OHh4S0e/dXlkofIF+LVObO7fFgCPDw8vGu8fPt+f34bQvbUDxY8PDy8L+C1j5VceROK8PDw8L6Zl3+SJOjvScm3eHh4eH/Lyx9ovyiz9P16rQUPDw8v5uVdpO/5+0p/Dw8PD2/dVW/LBHlyPBsUqJ8WDw8P7wJvNjrQJsqbeJVQP5Qk8PDw8I7y8jLrbFxgf53ZG8PDw8O7x5uVTdv0d1PSnY15DesoeHh4eAFvthEnsLbBtg8PH8oQeHh4eEd5q5GmQ6WKJOTkgQoPDw/vHm82zFRUiMvi7H6IIXqHeHh4eAve+xu0xYLkarPfJgv34b3h4eHhHeXlCXFb2J2VX48tBB4eHt41XpsK79tUeSMtuVc9NICHh4e34J1itC2uNuTMroCHh4d3g9eWU2eBJJr8ikNLHjDw8PDwbvDyhDVJi2dBYtZgG44O4OHh4R3izUqrLXsWNvKgEr1DPDw8vDVv3wDLN+vN2ucFjsP9PTw8PLygtz7bytvxgvbMtlDyaGvDeHh4eGteu6HvCxmzpLyosuDh4eEd4uVBok2L91NPs+LyMAbi4eHhlbz8Z5ubtQWL9r4vlwYPDw/vGm+/6bcPnQBmBZE+48bDw8Ob8PabfjscMGu/1a8BDw8P7xpvVsDdbPp5y60NV3h4eHj3eD/lkWz9sw5UW2iIggceHh7eBV47EHCqRJsPAeSBZwjDw8PDG/Ha0ah9eNiUd+tFxMPDw7vG2zS02lR43warYxoeHh7e1/BmaXELfp9AR1VqPDw8vK/h7cu4LbgOM3h4eHjXeJsBqXbjng1dtSVgPDw8vHu89j/6Ip1dBJi2cIyHh4f3X3j/AHaObrv+/O5SAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
     <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
 <script>
-var BLOG = { ROOT: '/', SHARE: , REWARD: false };
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
 
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
 
 </script>
 
-<script src="/js/main.min.js?v=1.6.13"></script>
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
 
 
 
 
 
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 
