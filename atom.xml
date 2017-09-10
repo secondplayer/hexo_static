@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>SecondPlayer&#39;s Blog</title>
-  <subtitle>It&#39;s better to burn out than to fade away.</subtitle>
+  <subtitle>我读书多，你别骗我</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
@@ -23,13 +23,7 @@
     <updated>2017-09-07T16:09:51.518Z</updated>
     
     <content type="html"><![CDATA[<p>本文主要是对项亮的<a href="https://book.douban.com/subject/10769749/" target="_blank" rel="external">推荐系统实践</a>部分章节进行了一些总结，先从什么是推荐系统开始讲起，然后介绍了评测推荐系统的指标和方法，最后介绍了常见的推荐系统算法。</p>
-<figure class="image-bubble">
-                <div class="img-lightbox">
-                    <div class="overlay"></div>
-                    <img src="http://upload-images.jianshu.io/upload_images/2245716-7457fe3c0981d437.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="《推荐系统实践》封面" title="">
-                </div>
-                <div class="image-caption">《推荐系统实践》封面</div>
-            </figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/2245716-7457fe3c0981d437.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="《推荐系统实践》封面"></p>
 <h2 id="什么是推荐系统"><a href="#什么是推荐系统" class="headerlink" title="什么是推荐系统"></a>什么是推荐系统</h2><p>随着信息技术和互联网的快速发展，人们逐渐从信息匮乏的时代走入了信息过载的时代。每天都有海量的信息被生产出来，用户如何从中找到自己感兴趣的内容变得越来越困难，内容生产者也在想方设法让自己生成的内容从海量信息中脱颖而出。为了解决信息过载的问题，历史上出现过的代表方案有分类目录和搜索引擎，这两者都要求用户明确知道自己需要的内容关键词。而推荐系统不需要用户提供明确的需求，而是通过分析用户的历史行为给用户的兴趣建模，从而主动给用户推荐能够满足它们兴趣的内容。推荐系统通过发掘用户的行为，找到用户的个性化需求，从而将<a href="https://zh.wikipedia.org/wiki/%E9%95%BF%E5%B0%BE" target="_blank" rel="external">长尾</a>商品准确地推荐给需要它的用户，帮助用户发现那些他们感兴趣但很难发现的商品。</p>
 <h2 id="推荐系统的应用"><a href="#推荐系统的应用" class="headerlink" title="推荐系统的应用"></a>推荐系统的应用</h2><p>在互联网的各类网站中都可以看到推荐系统的应用，尽管不同网站使用的技术不同，但总的来说几乎所有的推荐系统应用都是由前台的展示页面、后台的日志系统以及推荐算法系统构成。</p>
 <ul>
@@ -66,13 +60,7 @@
 </ul>
 <p>在众多指标中，作者认为：对于可以离线优化的指标，应该在给定覆盖率、多样性、新颖性等限制条件下，尽量优化预测准确度。</p>
 <h2 id="常见推荐系统算法"><a href="#常见推荐系统算法" class="headerlink" title="常见推荐系统算法"></a>常见推荐系统算法</h2><p>推荐系统是联系用户和物品的媒介，而推荐联系用户和物品的方式主要有3种，如下图所示。</p>
-<figure class="image-bubble">
-                <div class="img-lightbox">
-                    <div class="overlay"></div>
-                    <img src="http://upload-images.jianshu.io/upload_images/2245716-b37cbd23e2424475.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="3种联系用户和物品的推荐系统" title="">
-                </div>
-                <div class="image-caption">3种联系用户和物品的推荐系统</div>
-            </figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/2245716-b37cbd23e2424475.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="3种联系用户和物品的推荐系统"></p>
 <p>第一种方法，首先找到用户喜欢的物品，然后找到与这些物品相似的物品推荐给用户。基于这种方法可以给出如下的推荐解释：购买了该商品的用户也经常购买这些商品。这种方法通常被称为基于物品的协同过滤算法(item-based collaborative filtering)。<br>第二种方法，首先找到和用户有相似兴趣的其他用户，然后推荐这些其他用户喜欢的物品。这种方法通常被称为基于用户的协同过滤算法(user-based collaborative filtering)。<br>第三种方法，首先找到用户感兴趣的物品特征，然后推荐包含这些特征的物品。这种方法核心思想是通过隐含特征联系用户兴趣和物品，通常被称为隐语义模型算法(latent factor model)。</p>
 <h2 id="协同过滤算法"><a href="#协同过滤算法" class="headerlink" title="协同过滤算法"></a>协同过滤算法</h2><p>个性化推荐系统的一个重要算法是基于用户行为分析，学术界一般将这种类型的算法称为协同过滤算法(collaborative filtering)。</p>
 <blockquote>
