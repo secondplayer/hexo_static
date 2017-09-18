@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2017/09/19/refactoring-book/">
+    
+    
+    <title>重构: 改善既有代码的设计 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="重构,读书笔记">
+    <meta name="description" content="重构这本书由著名的世界软件开发大师Martin Fowler编写，是软件开发领域的经典书籍。书中的部分内容在refactoring.com上也有提及。                                                                                              重构: 改善既有代码的设计              什么是重">
+<meta name="keywords" content="重构,读书笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="重构: 改善既有代码的设计">
+<meta property="og:url" content="http://www.secondplayer.top/2017/09/19/refactoring-book/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="重构这本书由著名的世界软件开发大师Martin Fowler编写，是软件开发领域的经典书籍。书中的部分内容在refactoring.com上也有提及。                                                                                              重构: 改善既有代码的设计              什么是重">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-2b484ff5d8bcc8e0.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-5da7e72435862df7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-614d9c5bb4893d61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-7f9ff8bd03c36865.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-09-18T16:12:24.786Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="重构: 改善既有代码的设计">
+<meta name="twitter:description" content="重构这本书由著名的世界软件开发大师Martin Fowler编写，是软件开发领域的经典书籍。书中的部分内容在refactoring.com上也有提及。                                                                                              重构: 改善既有代码的设计              什么是重">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2245716-2b484ff5d8bcc8e0.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">重构: 改善既有代码的设计</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">重构: 改善既有代码的设计</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-09-18T16:12:24.000Z" itemprop="datePublished" class="page-time">
+  2017-09-19
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是重构"><span class="post-toc-number">1.</span> <span class="post-toc-text">什么是重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为什么要重构"><span class="post-toc-number">2.</span> <span class="post-toc-text">为什么要重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#何时重构"><span class="post-toc-number">3.</span> <span class="post-toc-text">何时重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#何时不该重构"><span class="post-toc-number">4.</span> <span class="post-toc-text">何时不该重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代码的坏味道"><span class="post-toc-number">5.</span> <span class="post-toc-text">代码的坏味道</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构筑测试体系"><span class="post-toc-number">6.</span> <span class="post-toc-text">构筑测试体系</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#常用重构方法"><span class="post-toc-number">7.</span> <span class="post-toc-text">常用重构方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提炼函数-Extract-Method"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">提炼函数 (Extract Method)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#引入解释性变量-Introduce-Explaining-Variable"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">引入解释性变量 (Introduce Explaining Variable)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分解临时变量-Split-Temporary-Variable"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">分解临时变量 (Split Temporary Variable)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除对参数的赋值-Remove-Assignments-to-Parameters"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">移除对参数的赋值 (Remove Assignments to Parameters)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提炼类-Extract-Class"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">提炼类 (Extract Class)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除中间人-Remove-Middle-Man"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">移除中间人 (Remove Middle Man)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#以字面常量取代魔法数-Replace-Magic-Number-with-Symbolic-Constant"><span class="post-toc-number">7.7.</span> <span class="post-toc-text">以字面常量取代魔法数 (Replace Magic Number with Symbolic Constant)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分解条件表达式-Decompose-Conditional"><span class="post-toc-number">7.8.</span> <span class="post-toc-text">分解条件表达式 (Decompose Conditional)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#合并条件表达式-Consolidate-Conditional-Expression"><span class="post-toc-number">7.9.</span> <span class="post-toc-text">合并条件表达式 (Consolidate Conditional Expression)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#合并重复的条件片段-Consolidate-Duplicate-Conditional-Fragments"><span class="post-toc-number">7.10.</span> <span class="post-toc-text">合并重复的条件片段 (Consolidate Duplicate Conditional Fragments)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除控制标记-Remove-Control-Flag"><span class="post-toc-number">7.11.</span> <span class="post-toc-text">移除控制标记 (Remove Control Flag)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#以卫语句取代嵌套条件表达式-Replace-Nested-Conditional-with-Guard-Clauses"><span class="post-toc-number">7.12.</span> <span class="post-toc-text">以卫语句取代嵌套条件表达式 (Replace Nested Conditional with Guard Clauses)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#将查询函数和修改函数分离-Separate-Query-from-Modifier"><span class="post-toc-number">7.13.</span> <span class="post-toc-text">将查询函数和修改函数分离 (Separate Query from Modifier)</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-refactoring-book"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">重构: 改善既有代码的设计</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-09-19 00:12:24" datetime="2017-09-18T16:12:24.000Z"  itemprop="datePublished">2017-09-19</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p><a href="https://book.douban.com/subject/4262627/" target="_blank" rel="external">重构</a>这本书由著名的世界软件开发大师<a href="https://martinfowler.com/" target="_blank" rel="external">Martin Fowler</a>编写，是软件开发领域的经典书籍。书中的部分内容在<a href="https://refactoring.com/" target="_blank" rel="external">refactoring.com</a>上也有提及。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-2b484ff5d8bcc8e0.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="重构: 改善既有代码的设计" title="">
+                </div>
+                <div class="image-caption">重构: 改善既有代码的设计</div>
+            </figure>
+<h2 id="什么是重构"><a href="#什么是重构" class="headerlink" title="什么是重构"></a>什么是重构</h2><p>视上下文不同，重构有两个定义：</p>
+<ul>
+<li>重构(名词)：对软件内部结构的一种调整，目的是在不改变软件可观察行为的前提下，提高其可理解性，降低其修改成本</li>
+<li>重构(动词)：使用一系列重构手法，在不改变软件可观察行为的前提下，调整其结构</li>
+</ul>
+<h2 id="为什么要重构"><a href="#为什么要重构" class="headerlink" title="为什么要重构"></a>为什么要重构</h2><p>重构是个工具，它可以用于以下几个目的：</p>
+<ul>
+<li>重构改进软件设计</li>
+<li>重构使软件更容易理解</li>
+<li>重构帮助找到bug</li>
+<li>重构提高编程速度</li>
+</ul>
+<h2 id="何时重构"><a href="#何时重构" class="headerlink" title="何时重构"></a>何时重构</h2><p>不需要专门拨出时间进行重构，重构应该随时随地进行。你之所以重构，是因为你想做别的什么事，而重构可以帮助你把那些事做好。</p>
+<ul>
+<li>事不过三，三则重构</li>
+<li>添加功能时重构</li>
+<li>修补错误时重构</li>
+<li>复审代码时重构</li>
+</ul>
+<h2 id="何时不该重构"><a href="#何时不该重构" class="headerlink" title="何时不该重构"></a>何时不该重构</h2><ul>
+<li>当既有代码实在太混乱，重构不如重写来得简单</li>
+<li>当项目已接近最后期限，应该避免进行重构，因为已经没有时间了</li>
+</ul>
+<h2 id="代码的坏味道"><a href="#代码的坏味道" class="headerlink" title="代码的坏味道"></a>代码的坏味道</h2><p>「如果尿布臭了，就换掉它」。代码的坏味道指出了重构的可能性。</p>
+<ul>
+<li>重复代码 (Duplicated Code)</li>
+<li>过长函数 (Long Method)</li>
+<li>过大的类 (Large Class)</li>
+<li>过长参数列 (Long Parameter List)</li>
+<li>发散式变化 (Divergent Change)</li>
+<li>switch语句 (Switch Statements)</li>
+<li>中间人 (Middle Man)</li>
+<li>异曲同工的类 (Alternative Classes with Different Interfaces)</li>
+<li>过多的注释 (Comments)</li>
+<li>…</li>
+</ul>
+<h2 id="构筑测试体系"><a href="#构筑测试体系" class="headerlink" title="构筑测试体系"></a>构筑测试体系</h2><p>重构的基本技巧「小步前进，频繁测试」已经得到了多年的实践检验。因此如果你想进行重构，首要前提就是拥有一个可靠的测试体系。</p>
+<h2 id="常用重构方法"><a href="#常用重构方法" class="headerlink" title="常用重构方法"></a>常用重构方法</h2><h3 id="提炼函数-Extract-Method"><a href="#提炼函数-Extract-Method" class="headerlink" title="提炼函数 (Extract Method)"></a>提炼函数 (Extract Method)</h3><blockquote>
+<p>当我看见一个过长的函数或者一段需要注释才能让人理解用途的代码，我就会将这段代码放进一个独立函数中</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">printOwing</span><span class="params">()</span> </span>&#123;</div><div class="line">  printBanner();</div><div class="line"></div><div class="line">  <span class="comment">//print details</span></div><div class="line">  System.out.println (<span class="string">"name:  "</span> + _name);</div><div class="line">  System.out.println (<span class="string">"amount "</span> + amount);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">printOwing</span><span class="params">()</span> </span>&#123;</div><div class="line">  printBanner();</div><div class="line">  printDetails(amount);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">printDetails</span> <span class="params">(<span class="keyword">double</span> amount)</span> </span>&#123;</div><div class="line">  System.out.println (<span class="string">"name:  "</span> + _name);</div><div class="line">  System.out.println (<span class="string">"amount "</span> + amount);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="引入解释性变量-Introduce-Explaining-Variable"><a href="#引入解释性变量-Introduce-Explaining-Variable" class="headerlink" title="引入解释性变量 (Introduce Explaining Variable)"></a>引入解释性变量 (Introduce Explaining Variable)</h3><blockquote>
+<p>表达式有可能非常复杂而难以阅读。这种情况下，临时变量可以帮助你将表达式分解为比较容易管理的形式。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> ((platform.toUpperCase().indexOf(<span class="string">"MAC"</span>) &gt; -<span class="number">1</span>) &amp;&amp;</div><div class="line">    (browser.toUpperCase().indexOf(<span class="string">"IE"</span>) &gt; -<span class="number">1</span>) &amp;&amp;</div><div class="line">    wasInitialized() &amp;&amp; resize &gt; <span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// do something</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> isMacOs = platform.toUpperCase().indexOf(<span class="string">"MAC"</span>) &gt; -<span class="number">1</span>;</div><div class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> isIEBrowser = browser.toUpperCase().indexOf(<span class="string">"IE"</span>) &gt; -<span class="number">1</span>;</div><div class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> wasResized = resize &gt; <span class="number">0</span>;</div><div class="line"><span class="keyword">if</span> (isMacOs &amp;&amp; isIEBrowser &amp;&amp; wasInitialized() &amp;&amp; wasResized) &#123;</div><div class="line">    <span class="comment">// do something</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="分解临时变量-Split-Temporary-Variable"><a href="#分解临时变量-Split-Temporary-Variable" class="headerlink" title="分解临时变量 (Split Temporary Variable)"></a>分解临时变量 (Split Temporary Variable)</h3><blockquote>
+<p>如果临时变量承担多个责任，它就应该被替换(分解)为多个临时变量，每个变量只承担一个责任。同一个临时变量承担两件不同的事情，会令代码阅读者糊涂。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">double</span> temp = <span class="number">2</span> * (_height + _width);</div><div class="line">System.out.println (temp);</div><div class="line">temp = _height * _width;</div><div class="line">System.out.println (temp);</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> <span class="keyword">double</span> perimeter = <span class="number">2</span> * (_height + _width);</div><div class="line">System.out.println (perimeter);</div><div class="line"><span class="keyword">final</span> <span class="keyword">double</span> area = _height * _width;</div><div class="line">System.out.println (area);</div></pre></td></tr></table></figure>
+<h3 id="移除对参数的赋值-Remove-Assignments-to-Parameters"><a href="#移除对参数的赋值-Remove-Assignments-to-Parameters" class="headerlink" title="移除对参数的赋值 (Remove Assignments to Parameters)"></a>移除对参数的赋值 (Remove Assignments to Parameters)</h3><blockquote>
+<p>我之所以不喜欢(对参数赋值)这样的做法，因为它降低了代码的清晰度，而且混淆了按值传递和按引用传递这两种参数传递方式。<br>当然，面对那些使用「输出式参数」(output parameters)的语言，你不必遵循这条规则。不过在那些语言中我会尽量少用输出式参数。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">discount</span> <span class="params">(<span class="keyword">int</span> inputVal, <span class="keyword">int</span> quantity, <span class="keyword">int</span> yearToDate)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (inputVal &gt; <span class="number">50</span>) &#123;</div><div class="line">        inputVal -= <span class="number">2</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">discount</span> <span class="params">(<span class="keyword">int</span> inputVal, <span class="keyword">int</span> quantity, <span class="keyword">int</span> yearToDate)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> result = inputVal;</div><div class="line">    <span class="keyword">if</span> (inputVal &gt; <span class="number">50</span>) &#123;</div><div class="line">        result -= <span class="number">2</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="提炼类-Extract-Class"><a href="#提炼类-Extract-Class" class="headerlink" title="提炼类 (Extract Class)"></a>提炼类 (Extract Class)</h3><blockquote>
+<p>某个类做了应该由两个类做的事。<br>此时你需要考虑哪些部分可以分离出去，并将它们分离到一个单独的类中。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-5da7e72435862df7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="提炼类" title="">
+                </div>
+                <div class="image-caption">提炼类</div>
+            </figure>
+<h3 id="移除中间人-Remove-Middle-Man"><a href="#移除中间人-Remove-Middle-Man" class="headerlink" title="移除中间人 (Remove Middle Man)"></a>移除中间人 (Remove Middle Man)</h3><blockquote>
+<p>每当客户要使用受托类的新特性时，你就必须在服务端添加一个简单委托函数。随着受托类的特性(功能)越来越多，这一过程会让你痛苦不已。服务类完全变成了一个“中间人”，此时你就应该让客户直接调用受托类。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-614d9c5bb4893d61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="移除中间人" title="">
+                </div>
+                <div class="image-caption">移除中间人</div>
+            </figure>
+<h3 id="以字面常量取代魔法数-Replace-Magic-Number-with-Symbolic-Constant"><a href="#以字面常量取代魔法数-Replace-Magic-Number-with-Symbolic-Constant" class="headerlink" title="以字面常量取代魔法数 (Replace Magic Number with Symbolic Constant)"></a>以字面常量取代魔法数 (Replace Magic Number with Symbolic Constant)</h3><blockquote>
+<p>所谓魔法数(magic number)是指拥有特殊意义，却又不能明确表现出这种意义的数字。如果你需要在不同的地点引用同一个逻辑数，魔法数会让你烦恼不已，因为一旦这些数发生改变，你就必须在程序中找到所有魔法数，并将它们全部修改一遍，这简直就是一场噩梦。就算你不需要修改，要准确指出每个魔法数的用途，也会让你颇费脑筋。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">potentialEnergy</span><span class="params">(<span class="keyword">double</span> mass, <span class="keyword">double</span> height)</span> </span>&#123;</div><div class="line">  <span class="keyword">return</span> mass * <span class="number">9.81</span> * height;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">potentialEnergy</span><span class="params">(<span class="keyword">double</span> mass, <span class="keyword">double</span> height)</span> </span>&#123;</div><div class="line">  <span class="keyword">return</span> mass * GRAVITATIONAL_CONSTANT * height;</div><div class="line">&#125;</div><div class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">double</span> GRAVITATIONAL_CONSTANT = <span class="number">9.81</span>;</div></pre></td></tr></table></figure>
+<h3 id="分解条件表达式-Decompose-Conditional"><a href="#分解条件表达式-Decompose-Conditional" class="headerlink" title="分解条件表达式 (Decompose Conditional)"></a>分解条件表达式 (Decompose Conditional)</h3><blockquote>
+<p>程序之中，复杂的条件逻辑是最常导致复杂度上升的地点之一。你必须编写代码来检查不同的条件分支、根据不同的分支做不同的事，然后你很快就会得到一个相当长的函数。<br>对于条件逻辑，将每个分支条件分解成新函数可以给你带来更多好处：可以突出条件逻辑，更清楚地表明每个分支的作用，并且突出每个分支的原因。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (date.before (SUMMER_START) || date.after(SUMMER_END))</div><div class="line">  charge = quantity * _winterRate + _winterServiceCharge;</div><div class="line"><span class="keyword">else</span> charge = quantity * _summerRate;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (notSummer(date))</div><div class="line">  charge = winterCharge(quantity);</div><div class="line"><span class="keyword">else</span> charge = summerCharge (quantity);</div></pre></td></tr></table></figure>
+<h3 id="合并条件表达式-Consolidate-Conditional-Expression"><a href="#合并条件表达式-Consolidate-Conditional-Expression" class="headerlink" title="合并条件表达式 (Consolidate Conditional Expression)"></a>合并条件表达式 (Consolidate Conditional Expression)</h3><blockquote>
+<p>之所以要合并条件代码，有两个重要原因。首先，合并后的条件代码会告诉你“实际上只有一次条件检查，只不过有多个并列条件需要检查而已”，从而使这一次检查的用意更清晰。其次，这项重构往往可以为你使用提炼函数(Extract Method)做好准备。将检查条件提炼成一个独立函数对于厘清代码意义非常有用，因为它把描述“做什么”的语句换成了“为什么这样做”。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">disabilityAmount</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (_seniority &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">  <span class="keyword">if</span> (_monthsDisabled &gt; <span class="number">12</span>) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">  <span class="keyword">if</span> (_isPartTime) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">  <span class="comment">// compute the disability amount</span></div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">disabilityAmount</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (isNotEligableForDisability()) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">  <span class="comment">// compute the disability amount</span></div></pre></td></tr></table></figure>
+<h3 id="合并重复的条件片段-Consolidate-Duplicate-Conditional-Fragments"><a href="#合并重复的条件片段-Consolidate-Duplicate-Conditional-Fragments" class="headerlink" title="合并重复的条件片段 (Consolidate Duplicate Conditional Fragments)"></a>合并重复的条件片段 (Consolidate Duplicate Conditional Fragments)</h3><blockquote>
+<p>有时你会发现，一组条件表达式的所有分支都执行了相同的某段代码。如果是这样，你就应该将这段代码搬移到条件表达式外面。这样，代码才能更清楚地表明哪些东西随条件的变化而变化、哪些东西保持不变。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (isSpecialDeal()) &#123;</div><div class="line">  total = price * <span class="number">0.95</span>;</div><div class="line">  send();</div><div class="line">&#125;</div><div class="line"><span class="keyword">else</span> &#123;</div><div class="line">  total = price * <span class="number">0.98</span>;</div><div class="line">  send();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (isSpecialDeal())</div><div class="line">  total = price * <span class="number">0.95</span>;</div><div class="line"><span class="keyword">else</span></div><div class="line">  total = price * <span class="number">0.98</span>;</div><div class="line">send();</div></pre></td></tr></table></figure>
+<h3 id="移除控制标记-Remove-Control-Flag"><a href="#移除控制标记-Remove-Control-Flag" class="headerlink" title="移除控制标记 (Remove Control Flag)"></a>移除控制标记 (Remove Control Flag)</h3><blockquote>
+<p>人们之所以会使用这样的控制标记，因为结构化编程原则告诉他们：每个子程序只能有一个入口和一个出口。我赞同“单一入口”原则（而且现代编程语言也强迫我们这样做），但是“单一出口”原则会让你在代码中加入讨厌的控制标记，大大降低条件表达式的可读性。这就是编程语言提供break语句和continue语句的原因：用它们跳出复杂的条件语句。去掉控制标记所产生的效果往往让你大吃一惊：条件语句真正的用途会清晰得多。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">checkSecurity</span><span class="params">(String[] people)</span> </span>&#123;</div><div class="line">  <span class="keyword">boolean</span> found = <span class="keyword">false</span>;</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; people.length; i++) &#123;</div><div class="line">    <span class="keyword">if</span> (!found)&#123;</div><div class="line">      <span class="keyword">if</span> (people[i].equals(<span class="string">"Don"</span>)) &#123;</div><div class="line">        sendAlert();</div><div class="line">        found = <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (people[i].equals(<span class="string">"John"</span>)) &#123;</div><div class="line">        sendAlert();</div><div class="line">        found = <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> found;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">checkSecurity</span><span class="params">(String[] people)</span> </span>&#123;</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; people.length; i++) &#123;</div><div class="line">    <span class="keyword">if</span> (!found)&#123;</div><div class="line">      <span class="keyword">if</span> (people[i].equals(<span class="string">"Don"</span>)) &#123;</div><div class="line">        sendAlert();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (people[i].equals(<span class="string">"John"</span>)) &#123;</div><div class="line">        sendAlert();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="以卫语句取代嵌套条件表达式-Replace-Nested-Conditional-with-Guard-Clauses"><a href="#以卫语句取代嵌套条件表达式-Replace-Nested-Conditional-with-Guard-Clauses" class="headerlink" title="以卫语句取代嵌套条件表达式 (Replace Nested Conditional with Guard Clauses)"></a>以卫语句取代嵌套条件表达式 (Replace Nested Conditional with Guard Clauses)</h3><blockquote>
+<p>如果条件表达式的两条分支都是正常行为，就应该使用形如if…else…的条件表达式；如果某个条件极其罕见，就应该单独检查该条件，并在该条件为真时立刻从函数中返回。这样的单独检查常常被称为“卫语句”(guard clauses)。</p>
+<p>这个方法的精髓是：给某一条分支以特别的重视。它告诉阅读者：这种情况很罕见，如果它真地发生了，请做一些必要的整理工作，然后退出。</p>
+<p>“每个函数只能有一个入口和一个出口”的观念，根深蒂固于某些程序员的脑海里。现今的编程语言都会强制保证每个函数只有一个入口，至于“单一出口”规则，其实不是那么有用。保持代码清晰才是最关键的：如果单一出口能使这个函数更清晰易读，那么就使用单一出口；否则就不必这么做。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">getPayAmount</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">double</span> result;</div><div class="line">  <span class="keyword">if</span> (_isDead) result = deadAmount();</div><div class="line">  <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">if</span> (_isSeparated) result = separatedAmount();</div><div class="line">    <span class="keyword">else</span> &#123;</div><div class="line">      <span class="keyword">if</span> (_isRetired) result = retiredAmount();</div><div class="line">      <span class="keyword">else</span> result = normalPayAmount();</div><div class="line">    &#125;;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> result;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">getPayAmount</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (_isDead) <span class="keyword">return</span> deadAmount();</div><div class="line">  <span class="keyword">if</span> (_isSeparated) <span class="keyword">return</span> separatedAmount();</div><div class="line">  <span class="keyword">if</span> (_isRetired) <span class="keyword">return</span> retiredAmount();</div><div class="line">  <span class="keyword">return</span> normalPayAmount();</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>扩展阅读：关于如何重构嵌套条件表达式，可以阅读<a href="https://coolshell.cn/articles/17757.html" target="_blank" rel="external">如何重构“箭头型”代码</a>，这篇文章更深层次地讨论了这个问题。</p>
+<h3 id="将查询函数和修改函数分离-Separate-Query-from-Modifier"><a href="#将查询函数和修改函数分离-Separate-Query-from-Modifier" class="headerlink" title="将查询函数和修改函数分离 (Separate Query from Modifier)"></a>将查询函数和修改函数分离 (Separate Query from Modifier)</h3><blockquote>
+<p>下面是一条好规则：任何有返回值的函数，都不应该有看得到的副作用。</p>
+<p>如果你遇到一个“既有返回值又有副作用”的函数，就应该试着将查询动作从修改动作中分割出来。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-7f9ff8bd03c36865.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="将查询函数和修改函数分离" title="">
+                </div>
+                <div class="image-caption">将查询函数和修改函数分离</div>
+            </figure>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2017-09-18T16:12:24.786Z" itemprop="dateUpdated">2017-09-19 00:12:24</time>
+</span><br>
+
+
+        
+        <a href="/2017/09/19/refactoring-book/" target="_blank" rel="external">http://www.secondplayer.top/2017/09/19/refactoring-book/</a>
+        
+    </div>
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/读书笔记/">读书笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/重构/">重构</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/09/19/refactoring-book/&title=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/09/19/refactoring-book/&title=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/09/19/refactoring-book/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/09/19/refactoring-book/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/09/19/refactoring-book/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/09/08/recommendation-system-book/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">常见推荐系统介绍</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <div id="gitment_thread"></div>
+    <link rel="stylesheet" href="//unpkg.com/gitment/style/default.css">
+    <script src="//unpkg.com/gitment/dist/gitment.browser.js"></script>
+    <script>
+        var gitment = new Gitment({
+            owner: 'secondplayer',
+            repo: 'hexo_blog_gitment',
+            oauth: {
+                client_id: '9e75a4a9f7adb5033256',
+                client_secret: 'af911723044386f442f58135ea880f639a25041a',
+            },
+        })
+        gitment.render('comments')
+    </script>
+</section>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2017</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/09/19/refactoring-book/&title=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/09/19/refactoring-book/&title=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/09/19/refactoring-book/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《重构: 改善既有代码的设计》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/09/19/refactoring-book/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/09/19/refactoring-book/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACFklEQVR42u3aQY6DMAwF0N7/0sy2i6H9tqESycsKqRnIYyTjOH694nGcjPdfz+Ynd67+VXNgYGA8lnF8HGdzkgdXZybPPb0PBgbGBoxkEfMH5/PztWFgYGDM5yTBFwMDA+NaxllyVk0ccx4GBgZGnsD1NrRHa9y4F8fAwHggI6+6//76lvMNDAyMRzF6QTA/tqxuTZurwsDAWJqRB7he80SC7AVcDAwMjORwsVpoywN07/VhYGCsypiUzPJf84D7OQE9nY+BgbENI0/UeuWzXlm/8MXAwMBYlPGboliCScp5X1aFgYGxNKOKSVK63oLytBIDA2M3xlWtXcmD801s+RgVAwNjaUb1wZNyfzPhywM9BgbGooy86JYExPuOPAv/BwwMjM0YOa+6uZ2EYwwMjH0YkzRu3uZ11evDwMBYm1F9QLKlnJTMqseo5ZNVDAyMBzImR5UJI3ll1Tn/rAEDA2NpRp7A3dFmkW99o88ABgbGBoxq0OyVzPINczU9xcDA2IHRu101obz2FWBgYOzMyLeXvQaLXlmtkOFiYGAsxDiKIwnKeZfH5Aiz/F4xMDAey5gfcE7ukCeXvQ8DBgbGSoxqkO1d91ouCkEcAwNjA0av26qX3k3Svi9bWQwMDIz4Omm5uPhuGBgYGIPmrTuaOS4LuBgYGI9i3JfqVQ9Em20cGBgYSzN6IS8Pvvmh5iTTw8DAWJTxB2usYL4P/uHWAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
