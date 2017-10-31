@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/">
+    
+    
+    <title>迁移博客到阿里云 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Hexo,阿里云">
+    <meta name="description" content="起因去年在AWS上搭建的博客已经过去一年多了，之前在使用Hexo搭建个人静态博客这篇文章中提到，使用AWS可以免费使用一年的VPS，然而一年到了后发现一个月要收费12.94美元，感觉实在性价比不高。听说阿里云在2016年开始进军海外业务，所以趁这次机会迁移过去。于是在官网上购买了美国西部（硅谷）节点的服务器，目前在双11活动期间处于优惠价，有兴趣的朋友可以趁现在入手试一下。">
+<meta name="keywords" content="Hexo,阿里云">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迁移博客到阿里云">
+<meta property="og:url" content="http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="起因去年在AWS上搭建的博客已经过去一年多了，之前在使用Hexo搭建个人静态博客这篇文章中提到，使用AWS可以免费使用一年的VPS，然而一年到了后发现一个月要收费12.94美元，感觉实在性价比不高。听说阿里云在2016年开始进军海外业务，所以趁这次机会迁移过去。于是在官网上购买了美国西部（硅谷）节点的服务器，目前在双11活动期间处于优惠价，有兴趣的朋友可以趁现在入手试一下。">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-12ffd8f63fe7cc71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-ace2a00f71c5347a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-10-31T15:00:38.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="迁移博客到阿里云">
+<meta name="twitter:description" content="起因去年在AWS上搭建的博客已经过去一年多了，之前在使用Hexo搭建个人静态博客这篇文章中提到，使用AWS可以免费使用一年的VPS，然而一年到了后发现一个月要收费12.94美元，感觉实在性价比不高。听说阿里云在2016年开始进军海外业务，所以趁这次机会迁移过去。于是在官网上购买了美国西部（硅谷）节点的服务器，目前在双11活动期间处于优惠价，有兴趣的朋友可以趁现在入手试一下。">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2245716-12ffd8f63fe7cc71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">迁移博客到阿里云</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">迁移博客到阿里云</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-10-31T15:00:38.000Z" itemprop="datePublished" class="page-time">
+  2017-10-31
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#起因"><span class="post-toc-number">1.</span> <span class="post-toc-text">起因</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ECS环境配置"><span class="post-toc-number">2.</span> <span class="post-toc-text">ECS环境配置</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#迁移博客"><span class="post-toc-number">3.</span> <span class="post-toc-text">迁移博客</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#全局安装hexo报错"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">全局安装hexo报错</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#升级主题"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">升级主题</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#评论系统切换"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">评论系统切换</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-migrate-to-aliyun-ecs"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">迁移博客到阿里云</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-10-31 23:00:38" datetime="2017-10-31T15:00:38.000Z"  itemprop="datePublished">2017-10-31</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>去年在<a href="https://aws.amazon.com/" target="_blank" rel="external">AWS</a>上搭建的博客已经过去一年多了，之前在<a href="http://secondplayer.top/2016/06/12/hexo-blog-setup/" target="_blank" rel="external">使用Hexo搭建个人静态博客</a>这篇文章中提到，使用AWS可以免费使用一年的VPS，然而一年到了后发现一个月要收费12.94美元，感觉实在性价比不高。听说<a href="https://www.aliyun.com/" target="_blank" rel="external">阿里云</a>在2016年开始进军海外业务，所以趁这次机会迁移过去。于是在官网上购买了美国西部（硅谷）节点的服务器，目前在双11活动期间处于优惠价，有兴趣的朋友可以趁现在入手试一下。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-12ffd8f63fe7cc71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="购买阿里云ECS" title="">
+                </div>
+                <div class="image-caption">购买阿里云ECS</div>
+            </figure>
+<h2 id="ECS环境配置"><a href="#ECS环境配置" class="headerlink" title="ECS环境配置"></a>ECS环境配置</h2><p>购买完服务器后就开始配置环境了。首先是登录服务器，默认是密码方式登录。然而每次输入密码实在是太麻烦了，建议使用密钥方式登录，在ECS后台-网络和安全-密钥对里创建一个新的密钥对，然后将其与你的实例绑定，之后就可以用私钥登录了。注意密钥对创建完成后一定要马上下载私钥，因为阿里云只给你一次下载私钥的机会，并且不要将私钥泄露给别人。</p>
+<p>登录到服务器之后开始安装环境，在此之前需要检查一下服务器是否能访问外网。如果无法访问外网，需要到ECS后台-网络和安全-安全组里新建安全组，给安全组配置默认规则，默认规则的出方向即为允许访问任意ip的任意端口。这个安全组后面还会用到，如果你想开放一个自定义端口允许外网访问，也需要新建一个安全组并配置相应规则。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-ace2a00f71c5347a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="配置安全组规则" title="">
+                </div>
+                <div class="image-caption">配置安全组规则</div>
+            </figure>
+<h2 id="迁移博客"><a href="#迁移博客" class="headerlink" title="迁移博客"></a>迁移博客</h2><p>一切准备就绪后开始迁移博客。由于hexo是静态博客，所以只需把相应的静态文件拷贝的新机器上即可。这里列一下遇到的坑以及一些升级改动。</p>
+<h3 id="全局安装hexo报错"><a href="#全局安装hexo报错" class="headerlink" title="全局安装hexo报错"></a>全局安装hexo报错</h3><p>旧服务器上的node版本是v4.4.5，转眼一年过去了，最新版本是v8.4.0。在新版本下执行<code>npm install hexo-cli -g</code>安装hexo会有报错，解决办法详见<a href="https://github.com/hexojs/hexo/issues/2505" target="_blank" rel="external">官方issues</a>，简而言之就是先执行一句<code>npm config set unsafe-perm true</code>再安装即可。</p>
+<h3 id="升级主题"><a href="#升级主题" class="headerlink" title="升级主题"></a>升级主题</h3><p>我的博客一直在使用这个Material Design风格的主题，名叫<a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank" rel="external">indigo</a>。在一年内这个主题也有了较大的更新，升级之后界面变得更简洁了，优化了分享功能，增加了赞赏功能。升级的话也很简单，直接将代码更新到最新，按照文档更新配置即可。</p>
+<h3 id="评论系统切换"><a href="#评论系统切换" class="headerlink" title="评论系统切换"></a>评论系统切换</h3><p>旧博客使用的评论系统是多说，然而这家公司业务调整，已经关闭该系统了。知乎上有很多关于<a href="(https://www.zhihu.com/question/57426274/answer/153065672">替代方案的讨论</a>)，最终我选择了用<a href="https://github.com/imsun/gitment" target="_blank" rel="external">gitment</a>作为新博客的评论系统。这套评论系统最大的特点是基于GitHub Issues的评论系统，主要面向程序员群体。使用上也很方便，而且indigo主题已经支持gitment，所以只需简单配置几个参数就能使用了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>整个迁移步骤，主要在熟悉阿里云后台配置上花的时间最多。由于AWS是行业先行者，可以看得出阿里云的后台功能有点仿照AWS的意思，但可能是功能太多的缘故，给人感觉布局很拥挤。不管怎样，博客还是成功迁移了，在阿里云海外服务器上搭建科学上网工具也很流畅。</p>
+<p>最后打个广告，如果有兴趣购买阿里云的相关产品可以使用这个<a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=cqbcj3wz&amp;utm_source=cqbcj3wz" target="_blank" rel="external">推广链接</a>，点击链接可以领取优惠券。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2017-10-31T15:00:38.984Z" itemprop="dateUpdated">2017-10-31 23:00:38</time>
+</span><br>
+
+
+        
+        <a href="/2017/10/31/migrate-to-aliyun-ecs/" target="_blank" rel="external">http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/</a>
+        
+    </div>
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/">Hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/阿里云/">阿里云</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&title=《迁移博客到阿里云》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&title=《迁移博客到阿里云》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《迁移博客到阿里云》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/09/19/refactoring-book/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">重构: 改善既有代码的设计</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <div id="gitment_thread"></div>
+    <link rel="stylesheet" href="//unpkg.com/gitment/style/default.css">
+    <script src="//unpkg.com/gitment/dist/gitment.browser.js"></script>
+    <script>
+        var gitment = new Gitment({
+            owner: 'secondplayer',
+            repo: 'hexo_blog_gitment',
+            oauth: {
+                client_id: '9e75a4a9f7adb5033256',
+                client_secret: 'af911723044386f442f58135ea880f639a25041a',
+            },
+        })
+        gitment.render('comments')
+    </script>
+</section>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2017</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&title=《迁移博客到阿里云》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&title=《迁移博客到阿里云》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《迁移博客到阿里云》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNklEQVR42u3awY7DIAxF0fz/T2ekWc2iIfcZUk3MZVW1lHCysLDNceBx/o7x9+efcfWv82JcrbB4yJAh47WMczjSx49njsHpyjJkyNiNkQZTMn8cFefXkSFDhoyr5ciBb7w+ny9DhgwZNcb4X/zQSZJYGTJkyEiTWF6M48fKmfRYhgwZ+zDSxsA3Pz/Y35AhQ8ZLGGc4xgGUBEQemoNdyZAhozWDtA95w2BtSY5E14M8QIYMGS9n1NLLWrGsdqWDvBQZMmT0ZpCjXq2pyYtupJBHqDJkyNiBkbYqa6lssC3QNljQcZUhQ8a/ZwRXGRaxeUgNkmEZMmRswyAJZNoq4NcpeNJ7mYvLkCFjA8YTCe2q8tzNfBkyZGzDqB3pyPGRB2vSyERHQxkyZLRjkCDLN5Fuq9a8/BBwZciQ0ZSRBsS0uP/EhYyboC9DhowtGekBsXZ5gl//Qu1MGTJkNGJM3dEA20qTW7ITdNlChgwZjRikHF9LVtM254I5MmTI2ICRlvL5K+Ab5e3PD+FbhgwZTRm1g2B65avGDl6iDBkyNmOkDcW0lFa7ulHsxMqQIaMFg/88k76uYsQVRBkyZLRgnOGoJa5pwS5+rgwZMloz+EgLZPPf8NAvQ4aMHRhpECQwHkb5CjdIGTJkbMDgha00cZ0J6MFMGTJkyAgvZPDXkYb1m6OhDBkyZICQSjZRy61v9iNDhowNGGkSmzYmZw5/KBmWIUNGa0a6NCm0zTy+ljDLkCGjKeMHNPSjiTWiGpYAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

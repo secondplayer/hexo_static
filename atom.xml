@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2017-09-18T16:12:24.786Z</updated>
+  <updated>2017-10-31T15:00:38.984Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,51 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>迁移博客到阿里云</title>
+    <link href="http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/"/>
+    <id>http://www.secondplayer.top/2017/10/31/migrate-to-aliyun-ecs/</id>
+    <published>2017-10-31T15:00:38.000Z</published>
+    <updated>2017-10-31T15:00:38.984Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>去年在<a href="https://aws.amazon.com/" target="_blank" rel="external">AWS</a>上搭建的博客已经过去一年多了，之前在<a href="http://secondplayer.top/2016/06/12/hexo-blog-setup/" target="_blank" rel="external">使用Hexo搭建个人静态博客</a>这篇文章中提到，使用AWS可以免费使用一年的VPS，然而一年到了后发现一个月要收费12.94美元，感觉实在性价比不高。听说<a href="https://www.aliyun.com/" target="_blank" rel="external">阿里云</a>在2016年开始进军海外业务，所以趁这次机会迁移过去。于是在官网上购买了美国西部（硅谷）节点的服务器，目前在双11活动期间处于优惠价，有兴趣的朋友可以趁现在入手试一下。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-12ffd8f63fe7cc71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="购买阿里云ECS" title="">
+                </div>
+                <div class="image-caption">购买阿里云ECS</div>
+            </figure>
+<h2 id="ECS环境配置"><a href="#ECS环境配置" class="headerlink" title="ECS环境配置"></a>ECS环境配置</h2><p>购买完服务器后就开始配置环境了。首先是登录服务器，默认是密码方式登录。然而每次输入密码实在是太麻烦了，建议使用密钥方式登录，在ECS后台-网络和安全-密钥对里创建一个新的密钥对，然后将其与你的实例绑定，之后就可以用私钥登录了。注意密钥对创建完成后一定要马上下载私钥，因为阿里云只给你一次下载私钥的机会，并且不要将私钥泄露给别人。</p>
+<p>登录到服务器之后开始安装环境，在此之前需要检查一下服务器是否能访问外网。如果无法访问外网，需要到ECS后台-网络和安全-安全组里新建安全组，给安全组配置默认规则，默认规则的出方向即为允许访问任意ip的任意端口。这个安全组后面还会用到，如果你想开放一个自定义端口允许外网访问，也需要新建一个安全组并配置相应规则。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-ace2a00f71c5347a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="配置安全组规则" title="">
+                </div>
+                <div class="image-caption">配置安全组规则</div>
+            </figure>
+<h2 id="迁移博客"><a href="#迁移博客" class="headerlink" title="迁移博客"></a>迁移博客</h2><p>一切准备就绪后开始迁移博客。由于hexo是静态博客，所以只需把相应的静态文件拷贝的新机器上即可。这里列一下遇到的坑以及一些升级改动。</p>
+<h3 id="全局安装hexo报错"><a href="#全局安装hexo报错" class="headerlink" title="全局安装hexo报错"></a>全局安装hexo报错</h3><p>旧服务器上的node版本是v4.4.5，转眼一年过去了，最新版本是v8.4.0。在新版本下执行<code>npm install hexo-cli -g</code>安装hexo会有报错，解决办法详见<a href="https://github.com/hexojs/hexo/issues/2505" target="_blank" rel="external">官方issues</a>，简而言之就是先执行一句<code>npm config set unsafe-perm true</code>再安装即可。</p>
+<h3 id="升级主题"><a href="#升级主题" class="headerlink" title="升级主题"></a>升级主题</h3><p>我的博客一直在使用这个Material Design风格的主题，名叫<a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank" rel="external">indigo</a>。在一年内这个主题也有了较大的更新，升级之后界面变得更简洁了，优化了分享功能，增加了赞赏功能。升级的话也很简单，直接将代码更新到最新，按照文档更新配置即可。</p>
+<h3 id="评论系统切换"><a href="#评论系统切换" class="headerlink" title="评论系统切换"></a>评论系统切换</h3><p>旧博客使用的评论系统是多说，然而这家公司业务调整，已经关闭该系统了。知乎上有很多关于<a href="(https://www.zhihu.com/question/57426274/answer/153065672">替代方案的讨论</a>)，最终我选择了用<a href="https://github.com/imsun/gitment" target="_blank" rel="external">gitment</a>作为新博客的评论系统。这套评论系统最大的特点是基于GitHub Issues的评论系统，主要面向程序员群体。使用上也很方便，而且indigo主题已经支持gitment，所以只需简单配置几个参数就能使用了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>整个迁移步骤，主要在熟悉阿里云后台配置上花的时间最多。由于AWS是行业先行者，可以看得出阿里云的后台功能有点仿照AWS的意思，但可能是功能太多的缘故，给人感觉布局很拥挤。不管怎样，博客还是成功迁移了，在阿里云海外服务器上搭建科学上网工具也很流畅。</p>
+<p>最后打个广告，如果有兴趣购买阿里云的相关产品可以使用这个<a href="https://promotion.aliyun.com/ntms/act/ambassador/sharetouser.html?userCode=cqbcj3wz&amp;utm_source=cqbcj3wz" target="_blank" rel="external">推广链接</a>，点击链接可以领取优惠券。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;起因&quot;&gt;&lt;a href=&quot;#起因&quot; class=&quot;headerlink&quot; title=&quot;起因&quot;&gt;&lt;/a&gt;起因&lt;/h2&gt;&lt;p&gt;去年在&lt;a href=&quot;https://aws.amazon.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;AW
+    
+    </summary>
+    
+    
+      <category term="Hexo" scheme="http://www.secondplayer.top/tags/Hexo/"/>
+    
+      <category term="阿里云" scheme="http://www.secondplayer.top/tags/%E9%98%BF%E9%87%8C%E4%BA%91/"/>
+    
+  </entry>
   
   <entry>
     <title>重构: 改善既有代码的设计</title>
@@ -160,9 +205,9 @@
     </summary>
     
     
-      <category term="重构" scheme="http://www.secondplayer.top/tags/%E9%87%8D%E6%9E%84/"/>
-    
       <category term="读书笔记" scheme="http://www.secondplayer.top/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="重构" scheme="http://www.secondplayer.top/tags/%E9%87%8D%E6%9E%84/"/>
     
   </entry>
   
@@ -279,9 +324,9 @@
     </summary>
     
     
-      <category term="读书笔记" scheme="http://www.secondplayer.top/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
       <category term="推荐系统" scheme="http://www.secondplayer.top/tags/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="读书笔记" scheme="http://www.secondplayer.top/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
