@@ -31,7 +31,7 @@
 <meta property="og:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
 <meta property="og:locale" content="zh">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-11-21T16:00:53.594Z">
+<meta property="og:updated_time" content="2017-11-21T16:05:29.576Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从SQLAlchemy的“缓存”问题说起">
 <meta name="twitter:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
@@ -217,7 +217,7 @@
 <p>为了清除该对象的缓存，程度从低到高有下面几种做法。<code>expire</code>会清除对象里缓存的数据，这样下次查询时会直接从数据库进行查询。<code>refresh</code>不仅清除对象里缓存的数据，还会立刻触发一次数据库查询更新数据。<code>expire_all</code>的效果和<code>expire</code>一样，只不过会清除session里所有对象的缓存。<code>flush</code>会把所有本地修改写入到数据库，但没有提交。<code>commit</code>不仅把所有本地修改写入到数据库，同时也提交了该事务。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">db.session.expire(product)</div><div class="line">db.session.refresh(product)</div><div class="line">db.session.expire_all()</div><div class="line">db.session.flush()</div><div class="line">db.session.commit()</div></pre></td></tr></table></figure>
 <p>我们对这几种方法依次做实验，结果发现这5个操作都会让下次查询直接从数据库进行查询，但只有<code>commit</code>会读到最新的price。那这个又是什么原因呢，我们已经强制每次查询走数据库，为何还是读到“缓存”的数据。这个就要用数据库的事务隔离机制来解释了。</p>
-<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><p>在数据库系统中，事务<a href="https://en.wikipedia.org/wiki/Isolation_(database_systems" target="_blank" rel="external">隔离级别</a>)(isolation level)决定了数据在系统中的可见性。隔离级别从低到高分为四种：未提交读(Read uncommitted)，已提交读(Read committed)，可重复读(Repeatable read)，可串行化(Serializable)。他们的区别如下表所示。</p>
+<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><p>在数据库系统中，事务<a href="https://en.wikipedia.org/wiki/Isolation_level" target="_blank" rel="external">隔离级别</a>(isolation level)决定了数据在系统中的可见性。隔离级别从低到高分为四种：未提交读(Read uncommitted)，已提交读(Read committed)，可重复读(Repeatable read)，可串行化(Serializable)。他们的区别如下表所示。</p>
 <table>
 <thead>
 <tr>
@@ -310,7 +310,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2017-11-21T16:00:53.594Z" itemprop="dateUpdated">2017-11-22 00:00:53</time>
+    Last updated: <time datetime="2017-11-21T16:05:29.576Z" itemprop="dateUpdated">2017-11-22 00:05:29</time>
 </span><br>
 
 
