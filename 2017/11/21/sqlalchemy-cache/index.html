@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2017/11/21/sqlalchemy-cache/">
+    
+    
+    <title>从SQLAlchemy的“缓存”问题说起 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Flask,SQLAlchemy">
+    <meta name="description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
+<meta name="keywords" content="Flask,SQLAlchemy">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从SQLAlchemy的“缓存”问题说起">
+<meta property="og:url" content="http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-11-21T15:37:21.013Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从SQLAlchemy的“缓存”问题说起">
+<meta name="twitter:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">从SQLAlchemy的“缓存”问题说起</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">从SQLAlchemy的“缓存”问题说起</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-11-21T15:37:21.000Z" itemprop="datePublished" class="page-time">
+  2017-11-21
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#问题描述"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题描述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQLAlchemy的session状态管理"><span class="post-toc-number">2.</span> <span class="post-toc-text">SQLAlchemy的session状态管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务隔离"><span class="post-toc-number">3.</span> <span class="post-toc-text">事务隔离</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-sqlalchemy-cache"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">从SQLAlchemy的“缓存”问题说起</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-11-21 23:37:21" datetime="2017-11-21T15:37:21.000Z"  itemprop="datePublished">2017-11-21</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在排查一个问题，为了方便说明，我们假设现在有如下一个API：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@app.route("/sqlalchemy/test", methods=['GET'])</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sqlalchemy_test_api</span><span class="params">()</span>:</span></div><div class="line">    data = &#123;&#125;</div><div class="line">    <span class="comment"># 获取商品价格</span></div><div class="line">    product = Product.query.get(<span class="number">1</span>)</div><div class="line">    data[<span class="string">'old_price'</span>] = product.present_price</div><div class="line">    <span class="comment"># 休眠10秒，等待外部修改价格</span></div><div class="line">    time.sleep(<span class="number">10</span>)</div><div class="line">    product = Product.query.get(<span class="number">1</span>)</div><div class="line">    data[<span class="string">'new_price'</span>] = product.present_price</div><div class="line">    <span class="keyword">return</span> jsonify(status=<span class="string">'ok'</span>, data=data)</div></pre></td></tr></table></figure>
+<p>这里我们的后台使用了<a href="http://flask.pocoo.org/" target="_blank" rel="external">Flask</a>作为服务端框架，<a href="https://www.sqlalchemy.org/" target="_blank" rel="external">SQLAlchemy</a>作为数据库ORM框架。Product是一张商品表的ORM模型，假设原来id=1的商品价格为10，在程序休眠的10秒内价格被修改为20，那么你觉得返回的结果是多少？</p>
+<p>old_price显然是10，那么new_price呢？讲道理的话由于外部修改价格为20了，同时程序在sleep后立刻又query了一次，你可能觉得new_price应该是20。但结果并不是，真实测试的结果是10，给人感觉就像是SQLAlchemy“缓存”了上一次的结果。</p>
+<p>另外在测试的过程还发现一个现象，虽然在第一次API调用时两个price都是10，但是在第二次调用API时，读到的price是20。也就是说，在一个新的API开始时，之前“缓存”的结果被清除了。</p>
+<h2 id="SQLAlchemy的session状态管理"><a href="#SQLAlchemy的session状态管理" class="headerlink" title="SQLAlchemy的session状态管理"></a>SQLAlchemy的session状态管理</h2><p>之前我们提出了一个猜测：第二次查询是否“缓存”了第一次查询。为了验证这个猜想，我们可以把<code>SQLALCHEMY_ECHO</code>这个配置项打开，这是个全局配置项，官方文档定义如下：</p>
+<table>
+<thead>
+<tr>
+<th><code>SQLALCHEMY_ECHO</code></th>
+<th style="text-align:center">If set to True SQLAlchemy will log all the statements issued to stderr which can be useful for debugging.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>在这个配置项打开的情况下，我们可以看到查询语句输出到终端下。我们再次调用API，可以发现第一次查询会输出类似<code>SELECT * FROM product WHERE id = 1</code>的语句，而第二次查询则没有这样的输出。如此看来，SQLAlchemy确实缓存了上次的结果，在第二次查询的时候直接使用了上次的结果。</p>
+<p>实际上，当执行第一句<code>product = Product.query.get(1)</code>时，product这个对象处于持久状态(persistent)了，我们可以通过一些工具看到ORM对象目前处于的状态。详细的状态列表可在<a href="http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#quickie-intro-to-object-states" target="_blank" rel="external">官方文档</a>中找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> inspect</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>insp = inspect(product)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>insp.persistent</div><div class="line"><span class="keyword">True</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>product.__dict__</div><div class="line">&#123;</div><div class="line">  <span class="string">'id'</span>: <span class="number">1</span>, <span class="string">'present_price'</span>: <span class="number">10</span>,</div><div class="line">  <span class="string">'_sa_instance_state'</span>: &lt;sqlalchemy.orm.state.InstanceState object at <span class="number">0x1106a3350</span>&gt;,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为了清除该对象的缓存，程度从低到高有下面几种做法。<code>expire</code>会清除对象里缓存的数据，这样下次查询时会直接从数据库进行查询。<code>refresh</code>不仅清除对象里缓存的数据，还会立刻触发一次数据库查询更新数据。<code>expire_all</code>的效果和<code>expire</code>一样，只不过会清除session里所有对象的缓存。<code>flush</code>会把所有本地修改写入到数据库，但没有提交。<code>commit</code>不仅把所有本地修改写入到数据库，同时也提交了该事务。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">db.session.expire(product)</div><div class="line">db.session.refresh(product)</div><div class="line">db.session.expire_all()</div><div class="line">db.session.flush()</div><div class="line">db.session.commit()</div></pre></td></tr></table></figure>
+<p>我们对这几种方法依次做实验，结果发现这5个操作都会让下次查询直接从数据库进行查询，但只有<code>commit</code>会读到最新的price。那这个又是什么原因呢，我们已经强制每次查询走数据库，为何还是读到“缓存”的数据。这个就要用数据库的事务隔离机制来解释了。</p>
+<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><p>在数据库系统中，事务<a href="https://en.wikipedia.org/wiki/Isolation_(database_systems" target="_blank" rel="external">隔离级别</a>)(isolation level)决定了数据在系统中的可见性。隔离级别从低到高分为四种：未提交读(Read uncommitted)，已提交读(Read committed)，可重复读(Repeatable read)，可串行化(Serializable)。他们的区别如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th style="text-align:right">脏读</th>
+<th style="text-align:right">不可重复读</th>
+<th style="text-align:right">幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>未提交读(RU)</td>
+<td style="text-align:right">可能</td>
+<td style="text-align:right">可能</td>
+<td style="text-align:right">可能</td>
+</tr>
+<tr>
+<td>已提交读(RC)</td>
+<td style="text-align:right">不可能</td>
+<td style="text-align:right">可能</td>
+<td style="text-align:right">可能</td>
+</tr>
+<tr>
+<td>可重复读(RR)</td>
+<td style="text-align:right">不可能</td>
+<td style="text-align:right">不可能</td>
+<td style="text-align:right">可能</td>
+</tr>
+<tr>
+<td>可串行化</td>
+<td style="text-align:right">不可能</td>
+<td style="text-align:right">不可能</td>
+<td style="text-align:right">不可能</td>
+</tr>
+</tbody>
+</table>
+<p>脏读(dirty read)是指一个事务可以读到其他事务还未提交的数据。不可重复读(non-repeatable read)是指在一个事务中同一行被读取了多次，可以读到不同的值。幻读(phantom read)是指在一个事务中执行同一个语句多次，读到的数据行发生了改变，即可能行数增加了或减少了。</p>
+<p>前面提到的问题其实就涉及到不可重复读这个特性，即在一个事务中我们query了product.id=1的数据多次，但读到了重复的数据。对于MySQL来说，默认的事务隔离级别是RR，通过上表我们可知RR是可重复读的，因此可以解释这个现象。</p>
+<table>
+<thead>
+<tr>
+<th>事务A</th>
+<th>事务B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><figure class="highlight plain"><figcaption><span>| ```BEGIN;``` | </span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">| ``` SELECT present_price FROM product WHERE id = 1;  /* id=1的商品价格为10 */ ```      |  | </div><div class="line">| | ```UPDATE product SET present_price = 20 WHERE id = 1;  /* 修改id=1的商品价格为20 */```|</div><div class="line">| | ```COMMIT;```|</div><div class="line">| ``` SELECT present_price FROM product WHERE id = 1;  /* 再次查询id=1的商品价格 */ ```      |  | </div><div class="line">| ``` COMMIT; ```      |  | </div><div class="line"></div><div class="line">对于前面的问题，我们可以把两个事务的执行时序图画出来如上所示。因此为了使第二次查询得到正确的值，我们可以把隔离级别设为RC，或者在第二次查询前进行`COMMIT`新起一个事务。</div><div class="line"></div><div class="line">## Flask-SQLAlchemy的自动提交</div><div class="line"></div><div class="line">前面还遗留一个问题没有搞清楚：在一个新的API开始时，之前“缓存”的结果似乎被清除了。由于打开了`SQLALCHEMY_ECHO`配置项，我们可以观察到每次API结束的时候都会自动触发一次`COMMIT`，而正是这个自动提交清空了所有的“缓存”。通过查找源代码，我们发现是下面这段代码在起作用：</div><div class="line"></div><div class="line">``` python</div><div class="line">@teardown</div><div class="line">def shutdown_session(response_or_exc):</div><div class="line">    if app.config[&apos;SQLALCHEMY_COMMIT_ON_TEARDOWN&apos;]:</div><div class="line">        if response_or_exc is None:</div><div class="line">            self.session.commit()</div><div class="line">    self.session.remove()</div><div class="line">    return response_or_exc</div></pre></td></tr></table></figure></td>
+</tr>
+</tbody>
+</table>
+<p>如果配置项<code>SQLALCHEMY_COMMIT_ON_TEARDOWN</code>为<code>True</code>，那么首先触发<code>COMMIT</code>，最后统一执行<code>session.remove()</code>操作，即释放连接并回滚事务操作。</p>
+<p>有意思的是，这个配置项在Flask2.0版本的Changelog中被移除了。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Flask2.0 Changelog" title="">
+                </div>
+                <div class="image-caption">Flask2.0 Changelog</div>
+            </figure>
+<p>关于删除的原因，作者在<a href="https://stackoverflow.com/questions/23301968/invalid-transaction-persisting-across-requests" target="_blank" rel="external">stackoverflow</a>的一个帖子里进行了说明。这个帖子同时也解释了为什么在我们的生产环境中经常报这个错误：<br><code>InvalidRequestError: This session is in &#39;prepared&#39; state; no further SQL can be emitted within this transaction.</code>，而且只有重启才能解决问题。有兴趣的同学可以深入阅读一下。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在MySQL的同一个事务中，多次查询同一行的数据得到的结果是相同的，这里既有SQLAlchemy本身“缓存”结果的原因，也受到数据库隔离级别的影响。如果要强制读取最新的结果，最简单的办法就是在查询前手动<code>COMMIT</code>一次。根据这个原则，我们可以再仔细阅读下自己项目中的代码，看看会不会有一些隐藏的问题。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2017-11-21T15:37:21.013Z" itemprop="dateUpdated">2017-11-21 23:37:21</time>
+</span><br>
+
+
+        
+        <a href="/2017/11/21/sqlalchemy-cache/" target="_blank" rel="external">http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/</a>
+        
+    </div>
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Flask/">Flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQLAlchemy/">SQLAlchemy</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&title=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&title=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/10/31/migrate-to-aliyun-ecs/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">迁移博客到阿里云</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <div id="gitment_thread"></div>
+    <link rel="stylesheet" href="//unpkg.com/gitment/style/default.css">
+    <script src="//unpkg.com/gitment/dist/gitment.browser.js"></script>
+    <script>
+        var gitment = new Gitment({
+            owner: 'secondplayer',
+            repo: 'hexo_blog_gitment',
+            oauth: {
+                client_id: '9e75a4a9f7adb5033256',
+                client_secret: 'af911723044386f442f58135ea880f639a25041a',
+            },
+        })
+        gitment.render('comments')
+    </script>
+</section>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_qrcode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_qrcode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2017</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&title=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&title=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《从SQLAlchemy的“缓存”问题说起》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2017/11/21/sqlalchemy-cache/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLElEQVR42u3aS27DMAxFUe9/0+60QGv3PlIpIOpqFKCO7ZMBy9914XM/nO9/fb/+/c4/v3V94siQIWNbxv16yDVPD37irXquDBkyTmOQUEhC5I0PCdD8B5IhQ4aM9HOaAqb3lCFDhgweZHli1+fJkCFDBm+okfSOp338WctqcRkyZGzI4F33///8kfmGDBkytmLc4SFN/1q4vBtHhgwZsxk8wKUYcoegQCXvI0OGjCMZ6VJF2jirXYOyVxkyZAxikLUtcjueRPJmXPA+MmTIOIbBm1/9VlptRWNZL1CGDBmDGGnKyBcveFIYb4vIkCFjHIOna+nY4BMNuGIpK0OGjNGMtFhNBwkkZSShX4YMGScwOmGx0+7nxSoZPMiQIWM2o1ZYrlr/WpYmypAhYyijX6by5lra1Q8CtAwZMo5hpKUjeWQaiPk/gF+WLWTIkDGakSaItdWK2gihuGwhQ4aMcQwe4BY8Eo8kg9GCDBkyRjPSFjxfHeu0+ztXypAhYyojtpbCbj+go50RGTJkjGbw5QnO4GPRtMH3OMiUIUPGaEatcZ++Ck8r+bhUhgwZsxm1ZQsSlHl7Li2bg8GADBkyRjBqwa52TX9RrB+yZciQsS8jDbJ8taKfegZBXIYMGQcweODrvHQ/7fujlJUhQ4aM1xSwNjzgPxyqyGXIkCGjFGp5+crL2sUBV4YMGZswaildv03GwcvabTJkyNiQUQt5fDyZJoj99FGGDBmDGF/fR0HP2Iv0zgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
