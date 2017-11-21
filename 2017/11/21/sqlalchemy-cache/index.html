@@ -31,7 +31,7 @@
 <meta property="og:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
 <meta property="og:locale" content="zh">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-11-21T15:58:22.745Z">
+<meta property="og:updated_time" content="2017-11-21T16:00:53.594Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从SQLAlchemy的“缓存”问题说起">
 <meta name="twitter:description" content="问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API： 1234567891011@app.route(&quot;/sqlalchemy/test&quot;, methods=[&apos;GET&apos;])def sqlalchemy_test_api():    data = &amp;#123;&amp;#125;    # 获取商品价格    product = Product.query.get(1)    data">
@@ -168,7 +168,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#问题描述"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题描述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQLAlchemy的session状态管理"><span class="post-toc-number">2.</span> <span class="post-toc-text">SQLAlchemy的session状态管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务隔离"><span class="post-toc-number">3.</span> <span class="post-toc-text">事务隔离</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#问题描述"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题描述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQLAlchemy的session状态管理"><span class="post-toc-number">2.</span> <span class="post-toc-text">SQLAlchemy的session状态管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务隔离"><span class="post-toc-number">3.</span> <span class="post-toc-text">事务隔离</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Flask-SQLAlchemy的自动提交"><span class="post-toc-number">4.</span> <span class="post-toc-text">Flask-SQLAlchemy的自动提交</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">5.</span> <span class="post-toc-text">总结</span></a></li></ol>
         </nav>
     </aside>
     
@@ -269,10 +269,29 @@
 <td><code>BEGIN;</code></td>
 </tr>
 <tr>
-<td><figure class="highlight plain"><figcaption><span>present_price FROM product WHERE id = 1;</span><a href="/*">id=1的商品价格为10 */ ```      | x | </a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">| x | ```UPDATE product SET present_price = 20 WHERE id = 1;  /* 修改id=1的商品价格为20 */ ``` |</div><div class="line">| x | ```COMMIT;``` |</div><div class="line">| ``` SELECT present_price FROM product WHERE id = 1;  /* 再次查询id=1的商品价格 */ ```      | x | </div><div class="line">| ``` COMMIT; ```      | a | </div><div class="line"></div><div class="line">对于前面的问题，我们可以把两个事务的执行时序图画出来如上所示。因此为了使第二次查询得到正确的值，我们可以把隔离级别设为RC，或者在第二次查询前进行`COMMIT`新起一个事务。</div><div class="line"></div><div class="line">## Flask-SQLAlchemy的自动提交</div><div class="line"></div><div class="line">前面还遗留一个问题没有搞清楚：在一个新的API开始时，之前“缓存”的结果似乎被清除了。由于打开了`SQLALCHEMY_ECHO`配置项，我们可以观察到每次API结束的时候都会自动触发一次`COMMIT`，而正是这个自动提交清空了所有的“缓存”。通过查找源代码，我们发现是下面这段代码在起作用：</div><div class="line"></div><div class="line">``` python</div><div class="line">@teardown</div><div class="line">def shutdown_session(response_or_exc):</div><div class="line">    if app.config[&apos;SQLALCHEMY_COMMIT_ON_TEARDOWN&apos;]:</div><div class="line">        if response_or_exc is None:</div><div class="line">            self.session.commit()</div><div class="line">    self.session.remove()</div><div class="line">    return response_or_exc</div></pre></td></tr></table></figure></td>
+<td><code>SELECT present_price FROM product WHERE id = 1;</code>  <code>/* id=1的商品价格为10 */</code></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>UPDATE product SET present_price = 20 WHERE id = 1;</code>  <code>/* 修改id=1的商品价格为20 */</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>COMMIT;</code></td>
+</tr>
+<tr>
+<td><code>SELECT present_price FROM product WHERE id = 1;</code>  <code>/* 再次查询id=1的商品价格 */</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>COMMIT;</code></td>
 </tr>
 </tbody>
 </table>
+<p>对于前面的问题，我们可以把两个事务的执行时序图画出来如上所示。因此为了使第二次查询得到正确的值，我们可以把隔离级别设为RC，或者在第二次查询前进行<code>COMMIT</code>新起一个事务。</p>
+<h2 id="Flask-SQLAlchemy的自动提交"><a href="#Flask-SQLAlchemy的自动提交" class="headerlink" title="Flask-SQLAlchemy的自动提交"></a>Flask-SQLAlchemy的自动提交</h2><p>前面还遗留一个问题没有搞清楚：在一个新的API开始时，之前“缓存”的结果似乎被清除了。由于打开了<code>SQLALCHEMY_ECHO</code>配置项，我们可以观察到每次API结束的时候都会自动触发一次<code>COMMIT</code>，而正是这个自动提交清空了所有的“缓存”。通过查找源代码，我们发现是下面这段代码在起作用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@teardown</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">shutdown_session</span><span class="params">(response_or_exc)</span>:</span></div><div class="line">    <span class="keyword">if</span> app.config[<span class="string">'SQLALCHEMY_COMMIT_ON_TEARDOWN'</span>]:</div><div class="line">        <span class="keyword">if</span> response_or_exc <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            self.session.commit()</div><div class="line">    self.session.remove()</div><div class="line">    <span class="keyword">return</span> response_or_exc</div></pre></td></tr></table></figure>
 <p>如果配置项<code>SQLALCHEMY_COMMIT_ON_TEARDOWN</code>为<code>True</code>，那么首先触发<code>COMMIT</code>，最后统一执行<code>session.remove()</code>操作，即释放连接并回滚事务操作。</p>
 <p>有意思的是，这个配置项在Flask2.0版本的Changelog中被移除了。</p>
 <figure class="image-bubble">
@@ -291,7 +310,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2017-11-21T15:58:22.745Z" itemprop="dateUpdated">2017-11-21 23:58:22</time>
+    Last updated: <time datetime="2017-11-21T16:00:53.594Z" itemprop="dateUpdated">2017-11-22 00:00:53</time>
 </span><br>
 
 
