@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-01-01T05:38:16.483Z</updated>
+  <updated>2018-01-29T14:55:48.432Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,236 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记2: 欠拟合与过拟合</title>
+    <link href="http://www.secondplayer.top/2018/01/29/machine-learning-underfitting-and-overfitting/"/>
+    <id>http://www.secondplayer.top/2018/01/29/machine-learning-underfitting-and-overfitting/</id>
+    <published>2018-01-29T14:55:48.000Z</published>
+    <updated>2018-01-29T14:55:48.432Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="线性回归的概率解释"><a href="#线性回归的概率解释" class="headerlink" title="线性回归的概率解释"></a>线性回归的概率解释</h2><p>在解决线性回归问题时，我们为什么要使用最小二乘法作为代价函数？这个问题我们会通过概率统计来进行解释。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-55c71a4a1d633d7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="使用最小二乘法作为代价函数" title="">
+                </div>
+                <div class="image-caption">使用最小二乘法作为代价函数</div>
+            </figure>
+<p>假设对每个样本数据，输出值与预测值存在一定的误差ε<sup>(i)</sup>，误差可能来自未被建模的其他因素，也可能是随机的噪音。因而预测函数可写为</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-56433a18e2ab9045.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>另外我们假设误差属于<strong>独立同分布</strong>(independently and identically distributed)，并且服从高斯分布N(0,σ<sup>2</sup>)，所以ε<sup>(i)</sup>的概率密度函数为</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-4807496089e8a961.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>因此可推导出</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-0845db09df9e8962.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>P(y<sup>(i)</sup>|x<sup>(i)</sup>;θ)表示：在θ为给定的参数的情况下，概率y<sup>(i)</sup>以x<sup>(i)</sup>为随机变量的概率分布，注意θ不是随机变量。</p>
+<p>给定X(输入矩阵)和θ，Y(输出矩阵)的分布记为p(Y|X;θ)，这个概率的值我们定义为以θ为变量的<strong>似然函数</strong>(likelihood function)</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-d386154759d3b75e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由于每个误差值是独立分布的，所以</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-66bb77823b288481.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在θ作为参数的情况下，我们希望给定X时出现Y的概率是最大，因此问题变成最大化L(θ)。在求解最大化L(θ)的过程中，对L(θ)取对数将简化一些运算，因此我们最大化对数似然函数l(θ)：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-87470e39e25be670.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上面的公式可以得出，最大化似然函数L(θ)等价于最小化代价函数J(θ)，这就是我们为什么取最小二乘法作为代价函数的原因。</p>
+<h2 id="局部加权线性回归"><a href="#局部加权线性回归" class="headerlink" title="局部加权线性回归"></a>局部加权线性回归</h2><p>如下左图显示了用线性函数y=θ<sub>0</sub>+θ<sub>1</sub>x拟合数据集的结果，由于数据集并不是一条直线，因此拟合效果不太理想。如果我们增加一个特征项x<sup>2</sup>，即用y=θ<sub>0</sub>+θ<sub>1</sub>x+θ<sub>2</sub>x<sup>2</sup>拟合数据集，那么得到的结果如中间所示。粗看起来，增加更多的特征项可以使拟合效果更好，然而事实上并非如此。如果我们把特征项增加到6项，即y= Σ<sub>j∈[0,5]</sub>θ<sub>j</sub>x<sup>j</sup>，我们得到的结果如右图所示。尽管这个曲线完美拟合整个数据集，但是我们很难说它能准确预测未知的新数据。我们把左图这种情况称为<strong>欠拟合</strong>(underfitting)，就是说模型没有很好地捕捉到数据特征，不能够很好地拟合数据；右图这种情况称为<strong>过拟合</strong>(overfitting)，就是说模型把数据学习得太彻底，以至于不能很好地预测新的数据。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-66b4f132b66203f0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="欠拟合与过拟合" title="">
+                </div>
+                <div class="image-caption">欠拟合与过拟合</div>
+            </figure>
+<p>这里我们介绍一个新的方法称为<strong>局部加权线性回归</strong>(locally weighted linear regression)，它可以弥补普通线性回归模型欠拟合或者过拟合的问题。假设我们要预测x这个点对应的值，局部加权线性回归对x附近的每一个点赋予一定的权重，离x越近权重越大，离x越远权重越小。通过赋予权重，使得x附近的点对结果影响最大，离x很远的点对结果的影响可以忽略不计。因此代价函数表示如下，其中w<sup>(i)</sup>表示权重。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-6e6f5dd843be7dc1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由上述对权重特性的描述，w<sup>(i)</sup>的图像应该是个钟形曲线。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-ad864c94f7694643.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通常我们定义w<sup>(i)</sup>的函数如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-0158d0c97cfac7d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式中的τ称为<strong>波长</strong>(bandwidth)，波长的大小取决了附近点的下降速率，参数根据对数据集的实验进行调整。</p>
+<p>局部加权线性回归是一种<strong>非参数学习算法</strong>(non-parametric learning algorithm)，而之前我们学的普通线性回归是一种<strong>参数学习算法</strong>(parametric learning algorithm)。参数学习算法有固定的明确的参数，参数一旦确定，就不会改变了，我们不需要保留训练集中的训练样本。而非参数学习算法每进行一次预测，需要重新计算数据，因此需要保留训练数据。当训练数据较多时，非参数学习算法需要占用更多的存储空间。</p>
+<h2 id="逻辑回归"><a href="#逻辑回归" class="headerlink" title="逻辑回归"></a>逻辑回归</h2><p>现在我们开始讨论<strong>分类</strong>(classification)问题。分类问题和回归问题很类似，只不过预测的y值从连续值变成了离散值。我们先从最简单的<strong>二分类</strong>(binary classification)问题开始讨论，此时y值只有0和1两个取值。0被称为<strong>负类</strong>(negative class)，1被称为<strong>正类</strong>(positive class)，有时也会用符号<code>-</code>和<code>+</code>标记。给定x<sup>(i)</sup>，对应的y<sup>(i)</sup>值也被称为训练集的<strong>标签</strong>(label)。</p>
+<p>一个二分类的例子是，通过给定肿瘤的大小(x<sup>(i)</sup>)来预测是否为恶性肿瘤(y<sup>(i)</sup>)。我们先用之前线性回归的方法求解这个问题，如下图所示，从结果上看线性回归的效果并不好。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-b00a67c315f07b13.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>直觉上看，h<sub>θ</sub>(x)的取值应该是介于0到1之间的。为了达到这一点，通常我们选取h<sub>θ</sub>(x)如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-a8a80817260240a6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中g(z)被称为<strong>逻辑函数</strong>(logistic function)或者<strong>sigmoid函数</strong>(sigmoid function)。它的图形如下所示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-01eb10145c14b353.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>g(z)的值域在0到1之间，当z趋向正无穷时，g(z)趋向于1；当z趋向负无穷是，g(z)趋向于0。g(z)还有另外一个有用的特性，g(z)对z的导数可以用其自身来表示，具体推导如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-1b58479be5233116.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>那么对于这样一个逻辑回归模型，我们如何选取θ进行拟合呢？套用之前极大似然估计的思想，我们为这个模型赋予一些概率假设：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-ad006cb4a5315ff5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这两个式子可以简化成一个：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-8cce75ae7e277b99.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其似然函数L(θ)为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-3c80a98aad0f0299.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>对数似然函数l(θ)为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-0df7e539db557017.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如何最大化l(θ)呢？类似于在线性回归里求代价函数最小值是用的梯度下降法，我们可以用梯度上升法求函数的最大值。因此θ的每次迭代如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-773a75268974c40c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>对l(θ)进行求导：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-f44dface9d4ad5d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>所以我们得到梯度上升法则：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-b8d55b4d7edc27bf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这个迭代规则和线性回归的最小均方算法(LMS)看上去非常类似，但它们并不是同一个算法，因为现在的h<sub>θ</sub>(x)是一个非线性函数。然而它们都拥有相似的形式，这究竟是巧合还是有更深层次的原因呢？这个我们后面会讲到。</p>
+<h2 id="感知器学习算法"><a href="#感知器学习算法" class="headerlink" title="感知器学习算法"></a>感知器学习算法</h2><p>最后我们再简短地介绍一个新的算法。之前我们选取sigmoid函数作为h<sub>θ</sub>(x)，如果我们换成另外一个函数：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-154bc8ee13075948.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>然后用同样的迭代规则：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/2245716-fa01e348ae445c08.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这样我们得到的算法称为<strong>感知器学习算法</strong>(perceptron learning algorithm)。在上世纪60年代，<strong>感知器</strong>(perceptron)被认为是神经网络组成单元的一个粗糙的模型，这个我们后续会详细展开。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>线性回归的概率解释：最大化似然函数等价于最小化代价函数，这就是我们为什么取最小二乘法作为代价函数的原因</li>
+<li>为了避免普通线性回归欠拟合和过拟合的问题，可以采用局部加权线性回归方法，通过赋予权重来强化离x近的点的结果，弱化离x远的点的结果</li>
+<li>局部加权线性回归是一种非参数学习算法，普通线性回归是一种参数学习算法</li>
+<li>二分类问题通常取h<sub>θ</sub>(x)为sigmoid函数，其迭代规则与线性回归的规则形式相似</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>Coursera机器学习课程讲义 <a href="https://www.coursera.org/learn/machine-learning/resources/Zi29t" target="_blank" rel="external">Week 3 Lecture Notes</a></li>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes1.pdf" target="_blank" rel="external">pdf</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/E/B/M6SGF6VB4_M6SGHM4EB.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;线性回归的概率解释&quot;&gt;&lt;a href=&quot;#线性回归的概率解释&quot; class=&quot;headerlink&quot; title=&quot;线性回归的概率解释&quot;&gt;&lt;/a&gt;线性回归的概率解释&lt;/h2&gt;&lt;p&gt;在解决线性回归问题时，我们为什么要使用最小二乘法作为代价函数？这个问题我们会通过概率
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记1: 线性回归</title>
