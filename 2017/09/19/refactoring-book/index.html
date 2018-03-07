@@ -169,12 +169,13 @@
 <div class="container body-wrap">
     
     <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
             <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是重构"><span class="post-toc-number">1.</span> <span class="post-toc-text">什么是重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为什么要重构"><span class="post-toc-number">2.</span> <span class="post-toc-text">为什么要重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#何时重构"><span class="post-toc-number">3.</span> <span class="post-toc-text">何时重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#何时不该重构"><span class="post-toc-number">4.</span> <span class="post-toc-text">何时不该重构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代码的坏味道"><span class="post-toc-number">5.</span> <span class="post-toc-text">代码的坏味道</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构筑测试体系"><span class="post-toc-number">6.</span> <span class="post-toc-text">构筑测试体系</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#常用重构方法"><span class="post-toc-number">7.</span> <span class="post-toc-text">常用重构方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提炼函数-Extract-Method"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">提炼函数 (Extract Method)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#引入解释性变量-Introduce-Explaining-Variable"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">引入解释性变量 (Introduce Explaining Variable)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分解临时变量-Split-Temporary-Variable"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">分解临时变量 (Split Temporary Variable)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除对参数的赋值-Remove-Assignments-to-Parameters"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">移除对参数的赋值 (Remove Assignments to Parameters)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提炼类-Extract-Class"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">提炼类 (Extract Class)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除中间人-Remove-Middle-Man"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">移除中间人 (Remove Middle Man)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#以字面常量取代魔法数-Replace-Magic-Number-with-Symbolic-Constant"><span class="post-toc-number">7.7.</span> <span class="post-toc-text">以字面常量取代魔法数 (Replace Magic Number with Symbolic Constant)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分解条件表达式-Decompose-Conditional"><span class="post-toc-number">7.8.</span> <span class="post-toc-text">分解条件表达式 (Decompose Conditional)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#合并条件表达式-Consolidate-Conditional-Expression"><span class="post-toc-number">7.9.</span> <span class="post-toc-text">合并条件表达式 (Consolidate Conditional Expression)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#合并重复的条件片段-Consolidate-Duplicate-Conditional-Fragments"><span class="post-toc-number">7.10.</span> <span class="post-toc-text">合并重复的条件片段 (Consolidate Duplicate Conditional Fragments)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除控制标记-Remove-Control-Flag"><span class="post-toc-number">7.11.</span> <span class="post-toc-text">移除控制标记 (Remove Control Flag)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#以卫语句取代嵌套条件表达式-Replace-Nested-Conditional-with-Guard-Clauses"><span class="post-toc-number">7.12.</span> <span class="post-toc-text">以卫语句取代嵌套条件表达式 (Replace Nested Conditional with Guard Clauses)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#将查询函数和修改函数分离-Separate-Query-from-Modifier"><span class="post-toc-number">7.13.</span> <span class="post-toc-text">将查询函数和修改函数分离 (Separate Query from Modifier)</span></a></li></ol></li></ol>
         </nav>
     </aside>
-    
+
+
 <article id="post-refactoring-book"
   class="post-article article-type-post fade" itemprop="blogPost">
 
@@ -327,6 +328,7 @@
         </div>
 
         <blockquote class="post-copyright">
+    
     <div class="content">
         
 <span class="post-time">
@@ -338,6 +340,7 @@
         <a href="/2017/09/19/refactoring-book/" target="_blank" rel="external">http://www.secondplayer.top/2017/09/19/refactoring-book/</a>
         
     </div>
+    
     <footer>
         <a href="http://www.secondplayer.top">
             <img src="/img/gravatar.png" alt="secondplayer">
@@ -443,23 +446,6 @@
 
 
 
-
-<section class="comments" id="comments">
-    <div id="gitment_thread"></div>
-    <link rel="stylesheet" href="//unpkg.com/gitment/style/default.css">
-    <script src="//unpkg.com/gitment/dist/gitment.browser.js"></script>
-    <script>
-        var gitment = new Gitment({
-            owner: 'secondplayer',
-            repo: 'hexo_blog_gitment',
-            oauth: {
-                client_id: '9e75a4a9f7adb5033256',
-                client_secret: 'af911723044386f442f58135ea880f639a25041a',
-            },
-        })
-        gitment.render('comments')
-    </script>
-</section>
 
 
 
