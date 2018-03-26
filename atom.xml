@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-03-11T12:40:01.527Z</updated>
+  <updated>2018-03-26T14:22:44.695Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,181 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记5: 朴素贝叶斯算法</title>
+    <link href="http://www.secondplayer.top/2018/03/26/machine-learning-naive-bayes/"/>
+    <id>http://www.secondplayer.top/2018/03/26/machine-learning-naive-bayes/</id>
+    <published>2018-03-26T14:22:44.000Z</published>
+    <updated>2018-03-26T14:22:44.695Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="朴素贝叶斯模型"><a href="#朴素贝叶斯模型" class="headerlink" title="朴素贝叶斯模型"></a>朴素贝叶斯模型</h2><p>在上节介绍的GDA方法中，输入特征x是连续型随机变量。现在我们介绍一个算法用于处理x是离散值的情况。</p>
+<p>我们以邮件分类为例来介绍这个算法，邮件分类问题是<strong>文本分类</strong>(text classification)问题的一个子集。这里我们只考虑把邮件分为两类：<strong>垃圾邮件</strong>(spam email)和<strong>非垃圾邮件</strong>(non-spam email)。</p>
+<p>我们把邮件中所有出现的单词的集合称为<strong>词汇表</strong>(vocabulary)。首先我们构造特征向量x<sub>i</sub>，x<sub>i</sub>的长度等于词汇表里单词的个数。如果词汇表中第i个单词出现在某封邮件中，那么x<sub>i</sub>=1，否则x<sub>i</sub>=0，比如：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-278ecdae24dc4b38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上图表明这封邮件里包含a和buy这两个单词，但不包含aardvark，aardwolf，zygmurgy这三个单词。</p>
+<p>构建完特征向量后，我们需要对p(x|y)进行建模。假设词汇表里有50000个单词，那么x是50000维的向量且每个元素在0和1内取值，这样可能的结果就有2<sup>50000</sup>种，如果用多项式分布建模的话，就会有2<sup>50000</sup> - 1个参数，这显然是个天文数字。</p>
+<p>为了简化问题，我们就需要做一些假设。我们假设给定y的情况下，x<sub>i</sub>之间是条件独立的，这个假设称为<strong>朴素贝叶斯假设</strong>(Naive Bayes assumption)。举例来说，如果y=1表示垃圾邮件，buy是第2087个单词，price是第39831个单词，那么在已知该邮件是垃圾邮件的情况下，“buy出现在该邮件中”和“price出现在该邮件中”这两件事是互不相关的。用形式化的方法表述就是，p(x<sub>2087</sub>|y)=p(x<sub>2087</sub>|y, x<sub>39831</sub>)。注意，我们不是说x<sub>2087</sub>和x<sub>39831</sub>是互相独立的，而是说在给定y的情况下x<sub>2087</sub>和x<sub>39831</sub>是条件独立的。</p>
+<p>因此我们可以作如下推导：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-f1084f541149a0e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中第一个等号基于条件概率链式法则，第二个等号基于朴素贝叶斯假设。需要说明的是，尽管朴素贝叶斯假设是个比较强的假设，但在实际问题中表现的效果很好。</p>
+<p>我们的模型由φ<sub>i|y=1</sub> = p(x<sub>i</sub>=1|y=1)，φ<sub>i|y=0</sub> = p(x<sub>i</sub>=1|y=0)和φ<sub>y</sub> = p(y=1)这三个参数决定，其似然函数为</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2ff1092ca38b24a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通过最大化似然函数，可以求得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-fb20c63b766fc5f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式中的∧表示逻辑上的<strong>与</strong>(and)。这个公式可以从直观上进行解释，比如φ<sub>i|y=1</sub>就是第j个单词出现在垃圾邮件中的次数除以垃圾邮件的总个数。</p>
+<p>所有参数确定后，对一个新特征x作预测，我们可以计算出：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2c7bad7158e0d879.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>根据p(y=1|x)是否大于0.5来判断新邮件是否是垃圾邮件。</p>
+<p>最后，尽管上面我们的x取值只是0或1，但实际上可以把它扩展到多个离散值的情况。另外即使x是连续取值的，我们可以通过<strong>离散化</strong>(discretize)，即按一定的区间将连续值映射到离散值，然后应用朴素贝叶斯算法。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-619370e241323f05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>比如对于房价预测问题，我们可以按照上表把住房面积按一定区间离散化，如果住房面积是890，那么对应的特征值x<sub>i</sub>就是3。一般来说，如果连续型随机变量不能用多元正态分布建模(不能使用GDA)，那么将其离散化并采用朴素贝叶斯建模是一个更好的算法。</p>
+<h2 id="拉普拉斯平滑处理"><a href="#拉普拉斯平滑处理" class="headerlink" title="拉普拉斯平滑处理"></a>拉普拉斯平滑处理</h2><p>朴素贝叶斯算法对大多数问题都有很好的表现，但是我们还需要对其作一些修正使得它在文本分类问题中表现地更出色。</p>
+<p>假设NIPS是词汇表里的第35000个单词，但是这个单词从未在训练数据中出现过，因此：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-51c57c8579d7d45d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>所以预测一个包含单词NIPS的邮件是否为垃圾邮件，我们计算得到：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-8e145de435df88e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这是由于每一项乘积里都有p(x<sub>35000</sub>|y) = 0，因此分子分母都为0，这使得我们无法进行计算。</p>
+<p>这个问题从广义上来讲就是，仅仅因为一个事件没有在训练集中出现就预测它的概率为0不是一个好主意。对于φ<sub>i</sub> = p(z=i)，之前根据最大似然估计的结果为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-70d0bc98a4a71744.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>为了避免某些φ<sub>j</sub>等于0，我们可以使用<strong>拉普拉斯平滑处理</strong>(Laplace smoothing)，修正参数如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-15e185fea6373944.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们在原参数基础上，分子上加了1，分母上加了k。注意修正之后，所有<br>φ<sub>j</sub>之和仍然为1(j从1到k取值)。并且所有的φ<sub>j</sub>都不为0，解决了之前的问题。</p>
+<p>将拉普拉斯平滑处理代入到朴素贝叶斯算法，我们得到修正后的参数：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-327545f82e7d02fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="文本分类的事件模型"><a href="#文本分类的事件模型" class="headerlink" title="文本分类的事件模型"></a>文本分类的事件模型</h2><p>朴素贝叶斯算法在很多文本分类问题中都表现地不错，但还有个与之相关的算法表现地更出色。</p>
+<p>在文本分类的特定领域，朴素贝叶斯算法使用的是<strong>多元伯努利事件模型</strong>(multi-variate Bernoulli event model)。在该模型中，我们假设下一封邮件的发送方是随机的发送者(可能是垃圾邮件制造者或者是正常发件人)，然后发送方遍历整个字典，然后决定是否将单词i写到邮件中，每个单词i写入的概率p(x<sub>i</sub>=1|y) = φ<sub>i|y</sub>互相独立。因此，这封邮件出现的概率为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-3f1148076dcf76dc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们再介绍另一个模型，称之为<strong>多项式事件模型</strong>(multinomial event model)。这个模型引入了一套不同的符号和特征，x<sub>i</sub>表示邮件里第i个单词的在字典中的位置，x<sub>i</sub>在1到|V|中取值，|V|是词汇表(字典)的大小。一封由n个单词组成的邮件由长度为n的向量表示(x<sub>1</sub>, x<sub>2</sub>, …, x<sub>n</sub>)。比如，某封邮件的开头为”A NIPS …”，那么x<sub>1</sub>=1(a是字典里第1个单词)，x<sub>2</sub>=35000(NIPS是字典里第35000个单词)。</p>
+<p>在多项式事件模型中，我们仍随机选择发送者(和多元伯努利事件模型一样，概率是p(y))，然后发送者根据多项式分布决定第一个单词x<sub>1</sub>出来(概率是p(x<sub>1</sub>|y))，再以同样的方式决定后续的单词x<sub>2</sub>, …, x<sub>n</sub>，直到选出n个单词构成这封邮件。因此，在该模型下邮件出现的概率为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-1bc6671c7f7aa694.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>注意这个公式和在多元伯努利事件模型下推导出来的公式非常类似，但实际上这里的每一项都表示不同的含义，尤其是x<sub>i</sub>|y现在服从多项式分布，而不是伯努利分布。</p>
+<p>该模型的参数和之前一样，它们是 φ<sub>k|y=1</sub> = p(x<sub>j</sub>=k|y=1)，φ<sub>k|y=0</sub> = p(x<sub>j</sub>=k|y=0)和φ<sub>y</sub> = p(y)。注意对于任意的j，p(x<sub>j</sub>|y)的值都是一样的，也就是说单词在邮件中出现的位置与概率无关。</p>
+<p>给定训练数据集(x<sup>(i)</sup>, y<sup>(i)</sup>)，其似然函数为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-69fc6ef13bb476d0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通过最大化似然函数，可以求得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-84badcd78deb2d72.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>应用拉普拉斯平滑，我们在分子上加1，在分母上加|V|，修正后的参数为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-8e6d3f95572763ec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>尽管朴素贝叶斯算法不是最好的分类算法，但它的效果却是惊人地好。由于它的简单和易于实现的特性，我们通常把它作为首选试验的算法。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>在分类问题中常用的分类算法是朴素贝叶斯算法，模型需要满足朴素贝叶斯假设，即给定y的情况下，x<sub>i</sub>之间是条件独立的</li>
+<li>如果x是连续型随机变量，可以通过离散化后应用朴素贝叶斯算法；对于某些不能使用GDA建模的模型，该方法是一个更好的算法</li>
+<li>为了解决朴素贝叶斯算法中某些参数为0导致预测失效，可以采用拉普拉斯平滑对参数修正</li>
+<li>文本分类的两种事件模型：多元伯努利事件模型和多项式事件模型，后者通常效果更好</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes2.pdf" target="_blank" rel="external">pdf</a></li>
+<li>网易公开课：机器学习课程 双语字幕视频 <a href="https://open.163.com/movie/2008/1/A/R/M6SGF6VB4_M6SGHMFAR.html" target="_blank" rel="external">上</a> <a href="https://open.163.com/movie/2008/1/7/H/M6SGF6VB4_M6SGJVV7H.html" target="_blank" rel="external">下</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;朴素贝叶斯模型&quot;&gt;&lt;a href=&quot;#朴素贝叶斯模型&quot; class=&quot;headerlink&quot; title=&quot;朴素贝叶斯模型&quot;&gt;&lt;/a&gt;朴素贝叶斯模型&lt;/h2&gt;&lt;p&gt;在上节介绍的GDA方法中，输入特征x是连续型随机变量。现在我们介绍一个算法用于处理x是离散值的情况。
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记4: 生成学习算法</title>

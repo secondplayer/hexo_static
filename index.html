@@ -156,6 +156,53 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-machine-learning-naive-bayes"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-03-26 22:22:44" datetime="2018-03-26T14:22:44.000Z"  itemprop="datePublished">2018-03-26</time>
+
+        
+
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/03/26/machine-learning-naive-bayes/">机器学习笔记5: 朴素贝叶斯算法</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        朴素贝叶斯模型在上节介绍的GDA方法中，输入特征x是连续型随机变量。现在我们介绍一个算法用于处理x是离散值的情况。
+我们以邮件分类为例来介绍这个算法，邮件分类问题是文本分类(text classification)问题的一个子集。这里我们只考虑把邮件分为两类：垃圾邮件(spam email)和非垃圾邮件(non-spam email)。
+我们把邮件中所有出现的单词的集合称为词汇表(vocab...
+    
+
+        <a href="/2018/03/26/machine-learning-naive-bayes/" class="post-more waves-effect waves-button">
+            Continue reading...
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-machine-learning-gla"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -582,52 +629,6 @@
     
 
         <a href="/2017/07/23/redis-sorted-set/" class="post-more waves-effect waves-button">
-            Continue reading...
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-redis-distribution-lock"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-07-16 13:40:10" datetime="2017-07-16T05:40:10.000Z"  itemprop="datePublished">2017-07-16</time>
-
-        
-
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/07/16/redis-distribution-lock/">使用redis实现分布式锁</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        背景在类似秒杀这样的并发场景下，为了确保同一时刻只能允许一个用户访问资源，需要利用加锁的机制控制资源的访问权。如果服务只在单台机器上运行，可以简单地用一个内存变量进行控制。而在多台机器的系统上，则需要用分布式锁的机制进行并发控制。基于redis的一些特性，利用redis可以既方便又高效地模拟锁的实现。
-一个简单方案让我们先从一个简单的实现说起，这里用到了redis的两个命令，SETNX和EX...
-    
-
-        <a href="/2017/07/16/redis-distribution-lock/" class="post-more waves-effect waves-button">
             Continue reading...
         </a>
     </div>
