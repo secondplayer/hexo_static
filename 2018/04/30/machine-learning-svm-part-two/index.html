@@ -56,7 +56,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-fd39699dbc777c6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-991e01e70893e605.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-46f5629d2ed03e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-30T12:39:28.786Z">
+<meta property="og:updated_time" content="2018-04-30T12:46:01.889Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习笔记7: 支持向量机(下)">
 <meta name="twitter:description" content="上一篇文章中我们已经根据拉格朗日对偶性推导出了SVM最优化公式。而在这一篇文章中，我们将会从SVM最优化公式中引出核函数(kernels)的概念，由此给出在高维空间下更高效应用SVM的算法，然后利用正则化解决线性不可分与异常点的问题，最后介绍用于高效实现SVM的序列最小优化(sequential minimal optimization)算法。 核函数在线性回归的问题中，我们曾举过预测房价的例子，">
@@ -384,7 +384,7 @@
             </figure>
 <p>所以α<sub>1</sub>受到其余α<sub>i</sub>参数的控制，当α<sub>2</sub>, …, α<sub>m</sub>不变时，α<sub>1</sub>也不会改变。</p>
 <p>因此如果我们要使用坐标上升算法的话，需要一次更新两个参数。具体来说就是，每次选取两个参数α<sub>i</sub>和α<sub>j</sub>进行更新，使W关于α<sub>i</sub>和α<sub>j</sub>作优化调整，然后不断循环直到结果收敛为止。</p>
-<p>这个算法被称为<strong>序列最小优化</strong>(sequential minimal optimization, SMO)算法，最早由<a href="https://en.wikipedia.org/wiki/John_Platt_(computer_scientist" target="_blank" rel="external">John Platt</a>)提出，相关论文可以在<a href="https://www.microsoft.com/en-us/research/publication/sequential-minimal-optimization-a-fast-algorithm-for-training-support-vector-machines/" target="_blank" rel="external">这里</a>找到。</p>
+<p>这个算法被称为<strong>序列最小优化</strong>(sequential minimal optimization, SMO)算法，最早由<a href="https://en.wikipedia.org/wiki/John_Platt_%28computer_scientist%29" target="_blank" rel="external">John Platt</a>提出，相关论文可以在<a href="https://www.microsoft.com/en-us/research/publication/sequential-minimal-optimization-a-fast-algorithm-for-training-support-vector-machines/" target="_blank" rel="external">这里</a>找到。</p>
 <p>为了判断算法的收敛性，我们可以检查KKT条件是否满足tol参数，具体方法在John Platt关于SMO的论文里有阐述。</p>
 <p>SMO算法之所以高效就在于每次更新两个参数α<sub>i</sub>和α<sub>j</sub>的操作本身就很高效，我们具体来描述一下。</p>
 <p>根据等式(19)，我们有：</p>
@@ -456,7 +456,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2018-04-30T12:39:28.786Z" itemprop="dateUpdated">2018-04-30 20:39:28</time>
+    Last updated: <time datetime="2018-04-30T12:46:01.889Z" itemprop="dateUpdated">2018-04-30 20:46:01</time>
 </span><br>
 
 
