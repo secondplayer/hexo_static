@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2018/05/06/http-2-introduction/">
+    
+    
+    <title>HTTP/2 新特性浅析 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="HTTP/2">
+    <meta name="description" content="HTTP发展简史HTTP/0.9 1991年发布 只支持GET命令 请求及返回值都是ASCII码 请求以换行符(CRLF)结束 返回值只支持HTML格式 服务器返回值之后立刻关闭连接  1GET /index.html HTTP/1.0 1996年发布 除了GET命令，还增加了POST和HEAD命令 服务器支持返回任意格式 请求和返回值除了包含数据部分，还增加头部信息(HTTP header) 返">
+<meta name="keywords" content="HTTP&#x2F;2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP&#x2F;2 新特性浅析">
+<meta property="og:url" content="http://www.secondplayer.top/2018/05/06/http-2-introduction/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="HTTP发展简史HTTP/0.9 1991年发布 只支持GET命令 请求及返回值都是ASCII码 请求以换行符(CRLF)结束 返回值只支持HTML格式 服务器返回值之后立刻关闭连接  1GET /index.html HTTP/1.0 1996年发布 除了GET命令，还增加了POST和HEAD命令 服务器支持返回任意格式 请求和返回值除了包含数据部分，还增加头部信息(HTTP header) 返">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://hpbn.co/assets/diagrams/ae09920e853bee0b21be83f8e770ba01.svg">
+<meta property="og:image" content="https://hpbn.co/assets/diagrams/2a9b83c6b43e961a41a847c3227dcad2.svg">
+<meta property="og:image" content="https://hpbn.co/assets/diagrams/8e6931bb40fc26c511ad15645e7b6113.svg">
+<meta property="og:image" content="https://hpbn.co/assets/diagrams/47ba5b32e42cf5a06c3741d29ef9b94a.svg">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-a5bb0efd97c33117.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://hpbn.co/assets/diagrams/d759887277b266a42c526643285dd244.svg">
+<meta property="og:updated_time" content="2018-05-06T14:27:12.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP&#x2F;2 新特性浅析">
+<meta name="twitter:description" content="HTTP发展简史HTTP/0.9 1991年发布 只支持GET命令 请求及返回值都是ASCII码 请求以换行符(CRLF)结束 返回值只支持HTML格式 服务器返回值之后立刻关闭连接  1GET /index.html HTTP/1.0 1996年发布 除了GET命令，还增加了POST和HEAD命令 服务器支持返回任意格式 请求和返回值除了包含数据部分，还增加头部信息(HTTP header) 返">
+<meta name="twitter:image" content="https://hpbn.co/assets/diagrams/ae09920e853bee0b21be83f8e770ba01.svg">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">HTTP/2 新特性浅析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">HTTP/2 新特性浅析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-05-06T14:27:12.000Z" itemprop="datePublished" class="page-time">
+  2018-05-06
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#HTTP发展简史"><span class="post-toc-number">1.</span> <span class="post-toc-text">HTTP发展简史</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-0-9"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">HTTP/0.9</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-1-0"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">HTTP/1.0</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-1-1"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">HTTP/1.1</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-2"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">HTTP/2</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#二进制协议"><span class="post-toc-number">2.</span> <span class="post-toc-text">二进制协议</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#多路复用"><span class="post-toc-number">3.</span> <span class="post-toc-text">多路复用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#头部压缩"><span class="post-toc-number">4.</span> <span class="post-toc-text">头部压缩</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#服务器推送"><span class="post-toc-number">5.</span> <span class="post-toc-text">服务器推送</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">6.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-http-2-introduction"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">HTTP/2 新特性浅析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-05-06 22:27:12" datetime="2018-05-06T14:27:12.000Z"  itemprop="datePublished">2018-05-06</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="HTTP发展简史"><a href="#HTTP发展简史" class="headerlink" title="HTTP发展简史"></a>HTTP发展简史</h2><h3 id="HTTP-0-9"><a href="#HTTP-0-9" class="headerlink" title="HTTP/0.9"></a>HTTP/0.9</h3><ul>
+<li>1991年发布</li>
+<li>只支持GET命令</li>
+<li>请求及返回值都是ASCII码</li>
+<li>请求以换行符(CRLF)结束</li>
+<li>返回值只支持HTML格式</li>
+<li>服务器返回值之后立刻关闭连接</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GET /index.html</div></pre></td></tr></table></figure>
+<h3 id="HTTP-1-0"><a href="#HTTP-1-0" class="headerlink" title="HTTP/1.0"></a>HTTP/1.0</h3><ul>
+<li>1996年发布</li>
+<li>除了GET命令，还增加了POST和HEAD命令</li>
+<li>服务器支持返回任意格式</li>
+<li>请求和返回值除了包含数据部分，还增加头部信息(HTTP header)</li>
+<li>返回值增加状态码(status code)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">GET / HTTP/1.0</div><div class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5)</div><div class="line">Accept: */*</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">HTTP/1.0 200 OK </div><div class="line">Content-Type: text/plain</div><div class="line">Content-Length: 137582</div><div class="line">Expires: Thu, 05 Dec 1997 16:00:00 GMT</div><div class="line">Last-Modified: Wed, 5 August 1996 15:55:28 GMT</div><div class="line">Server: Apache 0.84</div><div class="line"></div><div class="line">&lt;html&gt;</div><div class="line">  &lt;body&gt;Hello World&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div></pre></td></tr></table></figure>
+<h3 id="HTTP-1-1"><a href="#HTTP-1-1" class="headerlink" title="HTTP/1.1"></a>HTTP/1.1</h3><ul>
+<li>1997年发布</li>
+<li>支持持久连接(Connection: keep-alive)，即TCP连接默认不关闭，可以被多个请求复用</li>
+<li>支持管道机制(pipelining)，即一个TCP连接内可以同时发起多个请求</li>
+<li>支持分块传输编码(chunked transfer encoding)</li>
+<li>支持断点续传(Accept-Ranges)</li>
+<li>支持更多命令，如PUT, PATCH, OPTIONS, DELETE</li>
+<li>尽管支持复用TCP连接，但仍然会产生队头阻塞(Head-of-line blocking)问题</li>
+</ul>
+<h3 id="HTTP-2"><a href="#HTTP-2" class="headerlink" title="HTTP/2"></a>HTTP/2</h3><ul>
+<li>2015年发布</li>
+<li>2009年Google自行研发的SPDY在Chrome上验证成功后，被当作是HTTP/2的基础</li>
+<li>完全采用二进制协议</li>
+<li>支持多路复用(multiplexing)</li>
+<li>支持头部压缩(header compression)</li>
+<li>支持服务器推送(server push)</li>
+</ul>
+<h2 id="二进制协议"><a href="#二进制协议" class="headerlink" title="二进制协议"></a>二进制协议</h2><p>HTTP/2之前的协议都是基于ASCII码，好处是可读性好，容易上手。其缺点是可选的空格以及多变的终止符给识别帧造成了一些困难。采用二进制协议可以使得帧的识别更简单，并且传输信息更高效。其缺点是不便于调试，这就需要我们使用相应的工具来理解二进制的内容。</p>
+<p>HTTP/2完全采用二进制协议，头信息和数据体都是二进制的，统称为<strong>帧</strong>(frame)。下图展示了同一个请求在HTTP/1.1和HTTP/2的对应关系，可见请求在HTTP/2中分为了两部分：头部帧和数据帧。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://hpbn.co/assets/diagrams/ae09920e853bee0b21be83f8e770ba01.svg" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>一个帧的基本格式如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://hpbn.co/assets/diagrams/2a9b83c6b43e961a41a847c3227dcad2.svg" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>所有帧都由一个9字节的header和可变长的payload组成，各字段定义如下：</p>
+<ul>
+<li>Length: 表示payload的长度，payload的长度默认不能超过2<sup>14</sup> (16,384) ，除非修改<a href="https://httpwg.org/specs/rfc7540.html#SETTINGS_MAX_FRAME_SIZE" target="_blank" rel="external">SETTINGS_MAX_FRAME_SIZE</a>为更大的值</li>
+<li>Type: 表示帧的类型，比如0x0表示数据帧，0x1表示头部帧，类型不在规范里定义的帧将会被丢弃</li>
+<li>Flags: 对于不同类型的帧，这个字段有不同的含义，比如在数据帧里，0x1表示这个frame是流的最后一帧(END_STREAM)</li>
+<li>R: 保留位，这一位必须置为0并且需要被忽略</li>
+<li>Stream Identifier: 流ID，客户端发起的流ID必须是奇数的，服务端发起的流ID必须是偶数的</li>
+</ul>
+<h2 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h2><p>为了说明什么是多路复用，我们先需要明确下面几个概念：</p>
+<ul>
+<li><strong>流</strong>(stream): 已建立的连接内的双向字节流，可以承载一条或多条消息</li>
+<li><strong>消息</strong>(message): 与逻辑请求或响应消息对应的完整的一系列帧</li>
+<li><strong>帧</strong>(frame): HTTP/2 通信的最小单位，每个帧都包含帧头，至少也会标识出当前帧所属的数据流</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://hpbn.co/assets/diagrams/8e6931bb40fc26c511ad15645e7b6113.svg" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这些概念的关系总结如下：</p>
+<ul>
+<li>所有通信都在一个 TCP 连接上完成，此连接可以承载任意数量的双向数据流</li>
+<li>每个数据流都有一个唯一的标识符和可选的优先级信息，用于承载双向消息</li>
+<li>每条消息都是一条逻辑 HTTP 消息（例如请求或响应），包含一个或多个帧</li>
+<li>帧是最小的通信单位，承载着特定类型的数据，例如 HTTP Header、消息负载等等。 来自不同数据流的帧可以交错发送，然后再根据每个帧头的数据流标识符重新组装</li>
+</ul>
+<p>在HTTP/1.1中，如果客户端为了提高性能想要在一个TCP连接内同时发起多个请求，每个请求必须按顺序被服务器依次响应，如果某一个请求特别耗时，那么后面的请求将会被一直阻塞。</p>
+<p>而在HTTP/2中，如果在一个TCP连接内同时发起多个请求，每个消息可以被拆成互不依赖的帧并且各帧之间交错发送，然后在另一端重新把帧组装起来。这个特性就叫做多路复用。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://hpbn.co/assets/diagrams/47ba5b32e42cf5a06c3741d29ef9b94a.svg" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上图展示了同一个连接内并行的多个数据流。客户端正在向服务器传输一个数据帧(数据流5)，与此同时，服务器正向客户端交错发送数据流1和数据流3的一系列帧。因此，一个连接上同时有三个并行数据流。</p>
+<h2 id="头部压缩"><a href="#头部压缩" class="headerlink" title="头部压缩"></a>头部压缩</h2><p>每个HTTP请求时都会承载一组表头。在HTTP/1.x中表头是以纯文本形式传输，通常需要500~800字节的开销，如果有cookie的话甚至会达到上千字节。为了减少这种开销并且提升性能，HTTP/2使用了<a href="https://httpwg.org/specs/rfc7541.html" target="_blank" rel="external">HPACK</a>算法进行压缩，具体来说包含了如下两种简单并强大的技术：</p>
+<ul>
+<li>头部字段使用静态Huffman编码，如果编码后使得字符反而变长了，那么不采用Huffman编码</li>
+<li>客户端和服务器同时维护并更新一个索引表，如果传输的值在索引表里，那么使用索引值作为传输的值。索引表分为静态表和动态表两部分，静态表在规范里定义，包含了一些常用的字段，动态表初始为空，在连接过程中动态更新</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-a5bb0efd97c33117.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如上图所示，最左边是原始的请求头，第一行的<code>:method GET</code>通过查找<a href="https://httpwg.org/specs/rfc7541.html#static.table.definition" target="_blank" rel="external">静态索引表</a>得到索引值为2，所以HPACK算法将其编码为2。最后第二行的<code>user-agent Mozilla/5.0 ...</code>不在静态索引表里，但在动态索引表里查到索引值为62，所以HPACK算法将其编码为62。最后一行的两个字段均未在索引表里查到，所以分别对其进行Huffman编码。</p>
+<h2 id="服务器推送"><a href="#服务器推送" class="headerlink" title="服务器推送"></a>服务器推送</h2><p>HTTP/2新增的另一个强大的功能是允许服务器除了可以响应客户端请求，还可以向客户端推送额外的资源。</p>
+<p>通常当我们请求一个网页时，客户端解析HTML源码，发现有js或css等其他静态资源，然后再发起请求下载静态资源。而实际上，当客户端请求网页后，服务器完全可以预判客户端接下来要请求相关的静态资源，那为什么不让服务器提前推送这些资源，从而减少额外的延迟时间呢？HTTP/2为此提出了服务器推送机制，服务器端可以通过发起<a href="https://httpwg.org/specs/rfc7540.html#PUSH_PROMISE" target="_blank" rel="external">PUSH_PROMISE</a>帧告知客户端，客户端收到服务器想要推送资源的意图后，可以决定是否接收推送。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://hpbn.co/assets/diagrams/d759887277b266a42c526643285dd244.svg" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>事实上，如果你在网页中内联CSS或Javascript，那么你已经体验过服务器推送了。使用HTTP/2，我们不仅可以获得相同效果，还可以获得更多的性能优势：</p>
+<ul>
+<li>客户端可以缓存推送资源</li>
+<li>推送资源可以被不同页面重用</li>
+<li>推送资源可以与其他资源复用</li>
+<li>推送资源可以由服务器设定优先级</li>
+<li>推送资源可以被客户端拒绝(非强制推送)</li>
+</ul>
+<p>服务器推送功能虽然很强大，但在实际使用中还需要考虑一些问题。第一个问题是如果客户端已经有缓存了，那么推送资源就是一种浪费。一种解决方法是只在用户第一次访问的时候推送资源。第二个问题是目前我们一般把静态资源放在CDN上，目前大部分CDN还不支持服务器推送，那么CDN和服务器推送到底哪个效果更好，这个可能还需要一些测试数据来做评判。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>Hypertext Transfer Protocol version 2 - <a href="https://httpwg.github.io/specs/rfc7540.html" target="_blank" rel="external">RFC7540</a></li>
+<li>HPACK - Header Compression for HTTP/2 - <a href="https://httpwg.github.io/specs/rfc7541.html" target="_blank" rel="external">RFC7541</a></li>
+<li>An Excerpt from <em>High Performance Browser Networking</em>: <a href="https://hpbn.co/http2/" target="_blank" rel="external">HTTP/2</a></li>
+<li><a href="https://http2.github.io/" target="_blank" rel="external">Homepage for HTTP/2</a></li>
+<li><a href="https://developers.google.com/web/fundamentals/performance/http2" target="_blank" rel="external">Introduction to HTTP/2</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2016/08/http.html" target="_blank" rel="external">HTTP 协议入门</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2018/03/http2_server_push.html" target="_blank" rel="external">HTTP/2 服务器推送（Server Push）教程</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2018-05-06T14:27:12.807Z" itemprop="dateUpdated">2018-05-06 22:27:12</time>
+</span><br>
+
+
+        
+        <a href="/2018/05/06/http-2-introduction/" target="_blank" rel="external">http://www.secondplayer.top/2018/05/06/http-2-introduction/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP-2/">HTTP/2</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&title=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&title=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/05/06/http-2-introduction/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/04/30/machine-learning-svm-part-two/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">机器学习笔记7: 支持向量机(下)</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Valine Comments -->
+    <div class="comments vcomment" id="comments"></div>
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+          return GUEST_INFO.indexOf(item) > -1
+        });
+        new Valine({
+            el: '#comments',
+            notify: 'false' == 'true',
+            verify: 'false' == 'true',
+            appId: "9Igi0ekMnJy1GPd4IP3n1AvX-gzGzoHsz",
+            appKey: "4YLq9PqAFlVgrofe0MbTQ746",
+            avatar: "",
+            placeholder: "Just say something",
+            guest_info: guest_info.length == 0 ? GUEST_INFO : guest_info,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_minicode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_minicode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2018</span>
+            <span>
+                
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&title=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&title=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/05/06/http-2-introduction/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《HTTP/2 新特性浅析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/05/06/http-2-introduction/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/05/06/http-2-introduction/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3aS27DMAxFUe9/0y7QUYHCyn2k3cLU1ShIHTtHBRh+dBx4nd8rvfL8sX6/s/7r8cSSIUPGaxnncq0fQN6/ulsKu7pGhgwZ+zBqoXN9/Toq8pCNfgBkyJAhA6Rr6+DL000ZMmTIuJdBkkieCMqQIUPGmtEpO3kHjHfJHqzFZciQ8UJGrd3/N68fnG/IkCHjJYwzXDwp5AUtHypc3l+GDBmjGesEjrfv0+s7vwxBhitDhoxBjH5hmYbgtDzmhzxkyJAxlcEPgaWhtpYspgmoDBkyZjPO9kqHAcHu4o2QIUPGbEY/HayNEDqfKv5nZMiQ8XIGKSlrj0+L2Nq2ypAhYzajExDTMSdvz8WvZciQsQ2DV4Vpo41c2TmKIUOGjH0Y6QGIWtM/bdKt7yBDhowdGGnyx0Nh+k6adMqQIWM3Rhrm+HEukjJ2NkKGDBn7MNLDYTyAEgD5okEgliFDxjhG+tVJqRnMTsNw/KEWlyFDxlAGb3jxQFkrdG+uxWXIkDGIwT9AhgS1cpccqviwBTJkyNiG8V9HvjpbVqyDZciQ8SpGUBzyQ1qlxxMYau3JkCFjHKMzSUgTyjQ083JXhgwZsxm3JWQgcPNt4qWsDBky9mHwW9dWbUjJj3rIkCFjH0YaOtNaOR12xqFfhgwZMnCpye/TOcBxmRrKkCFDBkjX+CDhru2QIUPGPoy0iO0EaA4ONlSGDBmjGbV2Px9b8jK4FrJlyJAxmvEFj5/MUuBLzKQAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
