@@ -156,6 +156,52 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-machine-learning-model-selection"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-06-03 22:00:39" datetime="2018-06-03T14:00:39.000Z"  itemprop="datePublished">2018-06-03</time>
+
+        
+
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/06/03/machine-learning-model-selection/">机器学习笔记9: 规则化和模型选择</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        假设我们为了某个学习问题需要从若干模型中选出最优模型，比如在多项式回归模型hθ(x) = g(θ0+θ1x+…+θkxk)中，我们应该如何选择合适的k值使得模型的偏差方差达成平衡？又比如在局部加权线性回归问题中，我们应该如何选择合适的波长参数τ使得模型的拟合效果最好呢？
+将上述问题给出形式化定义：假设我们有一个有限的模型集合M = {M1, …, Md}，我们应该选择哪个模型Mi作为最优模型...
+    
+
+        <a href="/2018/06/03/machine-learning-model-selection/" class="post-more waves-effect waves-button">
+            Continue reading...
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-machine-learning-erm"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -588,52 +634,6 @@ HTTP/1.0
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-sqlalchemy-cache"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-11-21 23:37:21" datetime="2017-11-21T15:37:21.000Z"  itemprop="datePublished">2017-11-21</time>
-
-        
-
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/11/21/sqlalchemy-cache/">从SQLAlchemy的“缓存”问题说起</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        问题描述最近在排查一个问题，为了方便说明，我们假设现在有如下一个API：
-1234567891011@app.route("/sqlalchemy/test", methods=['GET'])def sqlalchemy_test_api():    data = &#123;&#125;    # 获取商品价格    product = Product.query.get(1)    d...
-    
-
-        <a href="/2017/11/21/sqlalchemy-cache/" class="post-more waves-effect waves-button">
-            Continue reading...
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Flask/">Flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQLAlchemy/">SQLAlchemy</a></li></ul>
 
     </div>
     

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-05-27T12:20:49.412Z</updated>
+  <updated>2018-06-03T14:00:39.588Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,156 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记9: 规则化和模型选择</title>
+    <link href="http://www.secondplayer.top/2018/06/03/machine-learning-model-selection/"/>
+    <id>http://www.secondplayer.top/2018/06/03/machine-learning-model-selection/</id>
+    <published>2018-06-03T14:00:39.000Z</published>
+    <updated>2018-06-03T14:00:39.588Z</updated>
+    
+    <content type="html"><![CDATA[<p>假设我们为了某个学习问题需要从若干模型中选出最优模型，比如在多项式回归模型h<sub>θ</sub>(x) = g(θ<sub>0</sub>+θ<sub>1</sub>x+…+θ<sub>k</sub>x<sup>k</sup>)中，我们应该如何选择合适的k值使得模型的偏差方差达成平衡？又比如在局部加权线性回归问题中，我们应该如何选择合适的波长参数τ使得模型的拟合效果最好呢？</p>
+<p>将上述问题给出形式化定义：假设我们有一个有限的模型集合M = {M<sub>1</sub>, …, M<sub>d</sub>}，我们应该选择哪个模型M<sub>i</sub>作为最优模型呢？</p>
+<h2 id="交叉验证"><a href="#交叉验证" class="headerlink" title="交叉验证"></a>交叉验证</h2><p>假设训练集用S表示，考虑到上一讲的经验风险最小化(ERM)，我们可能会得出这样的一种算法：</p>
+<blockquote>
+<ol>
+<li>使用S训练每一个M<sub>i</sub>，获得对应的假设函数h<sub>i</sub></li>
+<li>选择训练误差最小的假设函数</li>
+</ol>
+</blockquote>
+<p>很遗憾，这个算法是不可行的。比如在多项式回归问题中，使用越高阶的多项式，拟合的效果越好，因而训练误差越小。但是在上一讲中我们也说明过这样的选择会有很大的方差，实际上是一种过拟合。</p>
+<p>下面我们对这个算法进行改进，这个算法叫做<strong>简单交叉验证</strong>(hold-out cross validation)。该算法描述如下：</p>
+<blockquote>
+<ol>
+<li>将训练集随机分为两部分，比如选择70%的数据作为S<sub>train</sub>，剩下的30%数据作为S<sub>cv</sub></li>
+<li>使用S<sub>train</sub>训练每一个M<sub>i</sub>，获得对应的假设函数h<sub>i</sub></li>
+<li>在S<sub>cv</sub>上测试每一个h<sub>i</sub>，计算相应的训练误差εˆ<sub>S<sub>cv</sub></sub>(h<sub>i</sub>)，并选择训练误差最小的假设函数</li>
+</ol>
+</blockquote>
+<p>由于我们是在S<sub>train</sub>上训练的模型，并且在S<sub>cv</sub>上计算的训练误差，我们计算出的训练误差更接近于实际的泛化误差。通常用于测试的数据集S<sub>cv</sub>需要占到整个数据集的1/4到1/3之间，30%是典型值。</p>
+<p>上述算法的第三步可以做一个改进，在选出最佳模型M<sub>i</sub>后，再在全部数据集上做一次训练。通常这样做是很有效的，因为训练数据越多，模型参数越准确。</p>
+<p>简单交叉验证算法的缺点是它“浪费”了30%的训练数据，尤其当训练数据本身就很稀少的情况下，去除了30%后剩下的就更少了。</p>
+<p>下面的算法优化了数据的利用率，这个算法叫做<strong>k重交叉验证</strong>(k-fold cross validation)。该算法描述如下：</p>
+<blockquote>
+<ol>
+<li>将训练集随机分为k个不相交的子集，记为S<sub>1</sub>, …, S<sub>k</sub></li>
+<li>对每一个M<sub>i</sub>，对每一个j=1, …, k，使用集合S<sub>1</sub>, …, S<sub>j-1</sub>, S<sub>j+1</sub>, …, S<sub>k</sub>（也就是从训练集中去除S<sub>j</sub>）进行训练，获得对应的假设函数h<sub>ij</sub>，并在S<sub>j</sub>上测试每一个h<sub>ij</sub>，计算相应的训练误差εˆ<sub>S<sub>j</sub></sub>(h<sub>ij</sub>)，并选择训练误差最小的假设函数<br>M<sub>i</sub>的近似泛化误差取所有εˆ<sub>S<sub>j</sub></sub>(h<sub>ij</sub>)的平均值</li>
+<li>选择近似泛化误差最小的模型M<sub>i</sub>，然后使用全部训练集S再做一次训练，获得对应的假设函数h<sub>i</sub></li>
+</ol>
+</blockquote>
+<p>上述算法通常取k = 10。当训练数据非常稀少时，我们可以选取k = m，这意味着每次只留下一份数据用于测试，用尽可能多的数据用于训练，这种方法也被称为<strong>留一交叉验证</strong>(leave-one-out cross validation)。上面两种算法有效地利用了数据集，但缺点是增加了更多计算的次数。</p>
+<p>上面我们介绍了很多交叉验证的算法用于在多个模型中选择一个最佳模型，实际上也可以用于对单个模型进行评估。比如你发明了一个新的学习算法，可以通过交叉验证计算测试集的训练误差是否合理来评估算法预测的质量。</p>
+<h2 id="特征选择"><a href="#特征选择" class="headerlink" title="特征选择"></a>特征选择</h2><p>模型选择的一个特殊并且重要的场景是<strong>特征选择</strong>(feature selection)。假设一个监督学习问题中的特征数n非常大，远远大于训练样本数m，但是我们怀疑其中只有一部分特征和学习问题相关，那么我们如何从中选择出我们希望的特征呢？</p>
+<p>给定n个特征，我们可以有2<sup>n</sup>种可能的模型(每个特征要么出现在模型中，要么不出现在模型中)。这样我们就将特征选择问题转化为规模为2<sup>n</sup>的模型选择问题。但是这样的计算量太大了，因此我们需要用一些启发式搜索方法进行特征选择。下面的这个算法称为<strong>前向搜索</strong>(forward search)：</p>
+<blockquote>
+<ol>
+<li>初始化特征集合F为空</li>
+<li>不断循环如下步骤，直到F的长度达到预设要求：<br> (a). 将i从1到n进行遍历，如果i不在F中，令F<sub>i</sub> = F ∪ {i}，然后用某种交叉验证算法计算F<sub>i</sub>的误差<br> (b). 选择误差最小的F<sub>i</sub>，并更新为F</li>
+<li>输出最佳特征集合F</li>
+</ol>
+</blockquote>
+<p>上述算法属于<strong>封装模型特征选择</strong>(wrapper model feature selection)。前向搜索是指每次循环都是从剩余未被选中的特征中选出一个最好的特征加到特征集合中。与之相对的还有<strong>后向搜索</strong>(backward search)，初始化特征集合F = {1, …, n}，每次循环都是从现有特征集合中选出一个最差的特征，然后将其从特征集合中移除，循环直到F的长度达到预设要求后才结束。</p>
+<p>封装模型特征选择可以很好地工作，但是计算量比较大，时间复杂度达到了O(n<sup>2</sup>)。</p>
+<p><strong>过滤特征选择</strong>(filter feature selection)算法是另一个启发式搜索方法，拥有较低的计算复杂度。算法的主要思想是，对每一个特征x<sub>i</sub>，计算其与y的信息量S(i)，S(i)越大说明x<sub>i</sub>与y的相关性越强。计算完所有的S(i)后，选择前k个拥有最大S(i)的特征即可。</p>
+<p>在实际应用中，S(i)通常选择为x<sub>i</sub>和y的<strong>互信息</strong>(mutual information)MI(x<sub>i</sub>, y)：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5d225c49cf13c7e8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上述公式中的几个概率值都可以在训练集上计算得到。为了对这个公式有直观的感受，我们可以将互信息表示成<strong>KL散度</strong>(Kullback-Leibler (KL) divergence)的形式：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-eea347b56c31c6b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如果x<sub>i</sub>和y互相独立，那么p(x<sub>i</sub>, y) = p(x<sub>i</sub>)p(y)，那么这两个概率分布的KL散度为0，因此x<sub>i</sub>和y是不相关的，对应的S(i)较小。相反地，如果x<sub>i</sub>和y的相关性越大，那么KL散度越大，对应的S(i)也较大。</p>
+<p>还有一个细节需要注意，计算完所有的S(i)后，应该如何选择k值？一个标准做法是使用交叉验证法来选择k值，不过这次的时间复杂度是线性的。</p>
+<h2 id="贝叶斯统计与规则化"><a href="#贝叶斯统计与规则化" class="headerlink" title="贝叶斯统计与规则化"></a>贝叶斯统计与规则化</h2><p>这一节我们再介绍一种可以减少过拟合发生的方法。</p>
+<p>回顾之前我们在逻辑回归中使用了<strong>最大似然估计</strong>(maximum likelihood (ML))法来拟合参数，其公式为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5bd6ffc8150e243f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在上式中，我们把θ视为一个未知的常数，这一观点被认为是<strong>频率学派</strong>(frequentist)的观点。在频率学派的观点下，θ不是随机的，只是一个未知的变量，我们的任务就是通过某些方法估计出θ的值。</p>
+<p>另一种看待θ的观点来自<strong>贝叶斯学派</strong>(Bayesian)。贝叶斯学派认为θ是随机的未知的变量，因而首先为θ指定一个<strong>先验概率</strong>(prior distribution)p(θ)。给定一个训练集S = {x<sup>(i)</sup>, y<sup>(i)</sup>}<sub>i=1, …, m</sub>，我们可以计算出θ的<strong>后验概率</strong>(posterior distribution)：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-1f17e7dc8cd128fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式中的p(y<sup>(i)</sup>|x<sup>(i)</sup>, θ)的计算取决于我们使用的具体模型。比如在贝叶斯逻辑回归模型中，</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-25f75066b252e6d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b324f798778a020a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>对于一个新的输入x，我们可以用下面的公式进行预测：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d7e725ca66571ada.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如果我们要求期望值的话，可以用如下公式：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7856a3b61acf3604.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以把上面步骤理解为“全贝叶斯预测”，因为我们在求后验概率时是对θ所有的值都计算了一遍，遗憾的是通常我们很难计算出这样的后验概率，因为对所有θ(通常是高维的)求积分是非常困难的。</p>
+<p>因此，在实际应用中，我们需要对后验概率作一个近似估计，通常用单个θ的取值来替代整个后验概率。<strong>最大后验概率估计</strong>(maximum a posteriori(MAP))方法就采用了这个思想，其估计公式为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7c922de4b1115389.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>可以发现，θ<sub>MAP</sub>和θ<sub>ML</sub>的公式非常相似，除了在最大后验概率估计公式后面多了一项θ的先验概率。</p>
+<p>在实际应用中，我们通常让θ服从高斯分布N(0,τ<sup>2</sup>I)。确定了这样的先验概率后，通常θ<sub>MAP</sub>比θ<sub>ML</sub>的拟合效果更好，出现过拟合的概率更低。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>模型选择的常用方法是交叉验证，交叉验证具体又分为简单交叉验证、k重交叉验证和留一交叉验证等方法</li>
+<li>特征选择的常用方法有封装模型特征选择和过滤特征选择。封装模型特征选择分为前向搜索和后向搜索，时间复杂度都为O(n<sup>2</sup>)；过滤特征选择的时间复杂度为O(n)</li>
+<li>在参数拟合问题上有频率学派和贝叶斯学派两种观点。频率学派认为θ是固定的未知的变量，使用最大似然估计法；贝叶斯学派认为θ是随机的未知的变量，使用最大后验概率估计法；最大后验概率估计法拟合出来的参数通常拟合效果更好，出现过拟合的概率更低</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes5.pdf" target="_blank" rel="external">pdf</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/U/O/M6SGF6VB4_M6SGJURUO.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;假设我们为了某个学习问题需要从若干模型中选出最优模型，比如在多项式回归模型h&lt;sub&gt;θ&lt;/sub&gt;(x) = g(θ&lt;sub&gt;0&lt;/sub&gt;+θ&lt;sub&gt;1&lt;/sub&gt;x+…+θ&lt;sub&gt;k&lt;/sub&gt;x&lt;sup&gt;k&lt;/sup&gt;)中，我们应该如何选择合适的k值使得模型的偏
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记8: 经验风险最小化</title>
