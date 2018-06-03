@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-06-03T14:00:39.588Z</updated>
+  <updated>2018-06-03T14:04:55.199Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>机器学习笔记9: 规则化和模型选择</title>
+    <title>机器学习笔记9: 模型选择</title>
     <link href="http://www.secondplayer.top/2018/06/03/machine-learning-model-selection/"/>
     <id>http://www.secondplayer.top/2018/06/03/machine-learning-model-selection/</id>
     <published>2018-06-03T14:00:39.000Z</published>
-    <updated>2018-06-03T14:00:39.588Z</updated>
+    <updated>2018-06-03T14:04:55.199Z</updated>
     
     <content type="html"><![CDATA[<p>假设我们为了某个学习问题需要从若干模型中选出最优模型，比如在多项式回归模型h<sub>θ</sub>(x) = g(θ<sub>0</sub>+θ<sub>1</sub>x+…+θ<sub>k</sub>x<sup>k</sup>)中，我们应该如何选择合适的k值使得模型的偏差方差达成平衡？又比如在局部加权线性回归问题中，我们应该如何选择合适的波长参数τ使得模型的拟合效果最好呢？</p>
 <p>将上述问题给出形式化定义：假设我们有一个有限的模型集合M = {M<sub>1</sub>, …, M<sub>d</sub>}，我们应该选择哪个模型M<sub>i</sub>作为最优模型呢？</p>
