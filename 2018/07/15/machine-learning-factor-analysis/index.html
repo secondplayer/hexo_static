@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2018/07/15/machine-learning-factor-analysis/">
+    
+    
+    <title>机器学习笔记12: 因子分析 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="机器学习">
+    <meta name="description" content="上一节我们介绍了用EM算法求解混合高斯模型，但这个算法通常是在样本数足够多的情况下才成立，即满足样本数m远远大于特征数n。 如果n &amp;gt;&amp;gt; m，那么在模型计算参数的时候会遇到一些问题。计算均值和协方差函数这两个参数的公式为：">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习笔记12: 因子分析">
+<meta property="og:url" content="http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="上一节我们介绍了用EM算法求解混合高斯模型，但这个算法通常是在样本数足够多的情况下才成立，即满足样本数m远远大于特征数n。 如果n &amp;gt;&amp;gt; m，那么在模型计算参数的时候会遇到一些问题。计算均值和协方差函数这两个参数的公式为：">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-c3330f8fe8df7b00.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-fc6c34ef31e8a798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-94d24e0919054319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-4ba05856e574d956.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-dd5b0c8607c7f91d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-256da9a43a4dd423.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-6025ec6ff77d63d5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-da3e1bf125c34463.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-7902e4b310691711.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-30dc8196a19bdf2a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-66793e263ddee7d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-ddd6b535086c3064.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-c5f32675c5c0e152.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-6f886a7aa2954e4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-a9b15c5b7224ac63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-c47483f0d418dc07.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-461f8f209a702995.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-5ce2a3b8adaa9784.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-befe6dcd1e78ba82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-4c751a66917d1664.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-5b925b7a932abf80.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-9692b191016ea633.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-07-15T13:38:47.542Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习笔记12: 因子分析">
+<meta name="twitter:description" content="上一节我们介绍了用EM算法求解混合高斯模型，但这个算法通常是在样本数足够多的情况下才成立，即满足样本数m远远大于特征数n。 如果n &amp;gt;&amp;gt; m，那么在模型计算参数的时候会遇到一些问题。计算均值和协方差函数这两个参数的公式为：">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2245716-c3330f8fe8df7b00.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">机器学习笔记12: 因子分析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">机器学习笔记12: 因子分析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-07-15T13:38:47.000Z" itemprop="datePublished" class="page-time">
+  2018-07-15
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#限制协方差矩阵"><span class="post-toc-number">1.</span> <span class="post-toc-text">限制协方差矩阵</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#边缘与条件高斯分布"><span class="post-toc-number">2.</span> <span class="post-toc-text">边缘与条件高斯分布</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#因子分析模型"><span class="post-toc-number">3.</span> <span class="post-toc-text">因子分析模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#因子分析的EM算法"><span class="post-toc-number">4.</span> <span class="post-toc-text">因子分析的EM算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">5.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">6.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-machine-learning-factor-analysis"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">机器学习笔记12: 因子分析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-07-15 21:38:47" datetime="2018-07-15T13:38:47.000Z"  itemprop="datePublished">2018-07-15</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>上一节我们介绍了用EM算法求解混合高斯模型，但这个算法通常是在样本数足够多的情况下才成立，即满足样本数m远远大于特征数n。</p>
+<p>如果n &gt;&gt; m，那么在模型计算参数的时候会遇到一些问题。计算均值和协方差函数这两个参数的公式为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c3330f8fe8df7b00.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>当n &gt;&gt; m时，我们会发现Σ是奇异矩阵，这也就意味着Σ<sup>-1</sup>不存在，并且1/|Σ|<sup>1/2</sup> = 1/0，这几项在估计多元高斯分布的密度函数中都会用到，因此我们没法进行拟合。</p>
+<p>更一般的，如果m没有在一定范围内大于n，那么用极大似然估计法估计参数的效果都很差。然而我们还是希望用多元高斯分布来估计样本，应该怎么办呢？</p>
+<h2 id="限制协方差矩阵"><a href="#限制协方差矩阵" class="headerlink" title="限制协方差矩阵"></a>限制协方差矩阵</h2><p>如果我们没有足够的数据来估计协方差矩阵Σ，那么可以考虑给Σ做一些假设。比如我们可以假设Σ是对角矩阵，那么可以计算出：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-fc6c34ef31e8a798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>回顾一下之前我们说过高斯密度函数的等高线是椭圆，如果Σ是对角矩阵，那么就意味着椭圆的主轴与坐标轴是平行的。</p>
+<p>有时我们会对Σ做更强的假设，Σ不仅是对角矩阵，而且对角上每个元素的值都是相等的，我们可以写成：Σ = σ<sup>2</sup>I，其中 σ<sup>2</sup>是我们可以控制的参数，通过极大似然估计可以计算出：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-94d24e0919054319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这个模型对应的等高线是个圆形(在二维空间是圆，在三维空间是球)。</p>
+<p>如果我们要估计出完整的Σ，需要满足m ≥ n + 1才能保证Σ是非奇异矩阵。而如果使用上面两种假设，只需要满足m ≥ 2 就能保证Σ是非奇异矩阵。</p>
+<p>但是使用上面两种假设也是有明显缺点的，我们假设了特征之间是独立不相关的，这个假设太强了，我们还是希望能捕捉到特征之间的关系的。接下来我们介绍一种因子分析的模型，它使用了比对角矩阵更多的特征，同时保留了特征之间的关系，并且不需要计算一个完整的Σ。</p>
+<h2 id="边缘与条件高斯分布"><a href="#边缘与条件高斯分布" class="headerlink" title="边缘与条件高斯分布"></a>边缘与条件高斯分布</h2><p>在引入因子分析模型之前，我们先介绍下如何在多元高斯分布下求解边缘与条件高斯分布。</p>
+<p>假设我们有如下的随机变量：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-4ba05856e574d956.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中x<sub>1</sub> ∈ R<sup>r</sup>，x<sub>2</sub> ∈ R<sup>s</sup>，x ∈ R<sup>r + s</sup>。假设x服从高斯分布N(μ, Σ)，其中</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-dd5b0c8607c7f91d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式中的μ<sub>1</sub> ∈ R<sup>r</sup>，μ<sub>2</sub> ∈ R<sup>s</sup>，Σ<sub>11</sub> ∈ R<sup>r x r</sup>，Σ<sub>12</sub> ∈ R<sup>r x s</sup>，以此类推。注意由于协方差矩阵的对称性，Σ<sub>12</sub> = Σ<sub>21</sub><sup>T</sup>。</p>
+<p>在我们的假设中，x<sub>1</sub>和x<sub>2</sub>的联合分布是多元高斯分布，那么x<sub>1</sub>的边缘分布是什么呢？不难证明，E[x<sub>1</sub>] = μ<sub>1</sub>，Cov(x<sub>1</sub>) = E[(x<sub>1</sub> - μ<sub>1</sub>)(x<sub>1</sub> - μ<sub>1</sub>)<sup>T</sup>] = Σ<sub>11</sub>。关于Cov(x<sub>1</sub>)的证明如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-256da9a43a4dd423.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>比对矩阵左上角部分就可得到结论。由此可见，多元高斯分布的边缘分布仍然是多元高斯分布，即x<sub>1</sub> ~ N(μ<sub>1</sub>, Σ<sub>11</sub>)。</p>
+<p>接下来我们看条件分布应该如何求解。根据多元高斯分布的定义，可得x<sub>1</sub> | x<sub>2</sub> ~ N(μ<sub>1|2</sub>, Σ<sub>1|2</sub>)，其中：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-6025ec6ff77d63d5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在接下来的因子分析模型推导中，上面这些公式会非常有用。</p>
+<h2 id="因子分析模型"><a href="#因子分析模型" class="headerlink" title="因子分析模型"></a>因子分析模型</h2><p>在<strong>因子分析</strong>(factor analysis)模型中，我们给出(x, z)的联合分布如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-da3e1bf125c34463.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中z ∈ R<sup>k</sup>是隐含随机变量，μ ∈ R<sup>n</sup>，变换矩阵Λ ∈ R<sup>n x k</sup>，对角矩阵Ψ ∈ R<sup>n x n</sup>，k通常选择为比n小的一个数。</p>
+<p>上述过程可以理解为：首先在k维空间中按照多元高斯分布生成z<sup>(i)</sup>，然后通过μ + Λz<sup>(i)</sup>将z<sup>(i)</sup>映射到n维空间中，最后由于x<sup>(i)</sup>与上述模型之间存在误差，所以在模型基础上增加协方差矩阵Ψ的噪音，从而得到训练数据x<sup>(i)</sup>。</p>
+<p>上述过程可以等价表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7902e4b310691711.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中ε和z是独立的</p>
+<p>上述过程可以进一步表述为：高维样本点是通过低维样本点经过高斯分布、线性变换、误差扰动生成的，因此高维数据可以用低维数据来表示。</p>
+<p>下面我们开始计算模型参数。由于x和z的联合分布符合多元高斯分布，所以可以表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-30dc8196a19bdf2a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们需要计算出μ<sub>zx</sub>和Σ。首先由于z ~ N(0, I)，所以E[z] = 0，因此有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-66793e263ddee7d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>将两个结果结合起来，就有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-ddd6b535086c3064.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>然后我们来计算Σ。我们很容易证明Σ<sub>zz</sub> = Cov(z) = I。另外，我们也可以推导出Σ<sub>zx</sub>：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c5f32675c5c0e152.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>同样我们也可以推导出Σ<sub>xx</sub>：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-6f886a7aa2954e4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>综合上述结果，我们可以得到：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-a9b15c5b7224ac63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由此，我们也能得到x的边缘分布是x ~ N(μ, ΛΛ<sup>T</sup> + Ψ)。因此对于样本{x<sup>(i)</sup>; i=1, …, m}，我们对其进行极大似然估计：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c47483f0d418dc07.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>但是我们没有办法通过求导的方式获得各个参数，根据上一节的经验，我们需要借助EM算法进行求解。</p>
+<h2 id="因子分析的EM算法"><a href="#因子分析的EM算法" class="headerlink" title="因子分析的EM算法"></a>因子分析的EM算法</h2><p>E步的推导比较简单。我们需要计算Q<sub>i</sub>(z<sup>(i)</sup>) = p(z<sup>(i)</sup>|x<sup>(i)</sup>; μ, Λ, Ψ)。根据之前条件分布的讨论，z<sup>(i)</sup>|x<sup>(i)</sup>; μ, Λ, Ψ ~ N(μ<sub>z<sup>(i)</sup>|x<sup>(i)</sup></sub>, Σ<sub>z<sup>(i)</sup>|x<sup>(i)</sup></sub>)，其中：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-461f8f209a702995.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>将其代入到Q<sub>i</sub>(z<sup>(i)</sup>)中，可得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5ce2a3b8adaa9784.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>接下来我们来看M步，我们需要最大化的目标函数是：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-befe6dcd1e78ba82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们需要分别求出μ, Λ, Ψ。这三个参数的推导需要有一定数学技巧，这里就省略推导步骤，直接给出结果了。感兴趣的读者可以查阅讲义部分对Λ的推导。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-4c751a66917d1664.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5b925b7a932abf80.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-9692b191016ea633.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中Ψ是对角矩阵，只需将Φ上对角线上的元素放在Ψ对应位置上就得到了Ψ。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>当样本数m远远小于特征数n时，用EM算法求解混合高斯模型是不可行的，我们需要使用因子分析模型</li>
+<li>因子分析模型的方法本质是：高维样本点是通过低维样本点经过高斯分布、线性变换、误差扰动生成的，因此高维数据可以用低维数据来表示</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes9.pdf" target="_blank" rel="external">Factor Analysis</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/L/3/M6SGF6VB4_M6SGKK6L3.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2018-07-15T13:38:47.542Z" itemprop="dateUpdated">2018-07-15 21:38:47</time>
+</span><br>
+
+
+        
+        <a href="/2018/07/15/machine-learning-factor-analysis/" target="_blank" rel="external">http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&title=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&title=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/07/01/machine-learning-k-means-and-em-algorithm/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">机器学习笔记11: K-Means算法和EM算法</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Valine Comments -->
+    <div class="comments vcomment" id="comments"></div>
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+          return GUEST_INFO.indexOf(item) > -1
+        });
+        new Valine({
+            el: '#comments',
+            notify: 'false' == 'true',
+            verify: 'false' == 'true',
+            appId: "9Igi0ekMnJy1GPd4IP3n1AvX-gzGzoHsz",
+            appKey: "4YLq9PqAFlVgrofe0MbTQ746",
+            avatar: "",
+            placeholder: "Just say something",
+            guest_info: guest_info.length == 0 ? GUEST_INFO : guest_info,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_minicode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_minicode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2018</span>
+            <span>
+                
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&title=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&title=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记12: 因子分析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/07/15/machine-learning-factor-analysis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACsUlEQVR42u3ay04DQQwEwPz/T4PEDfHqtmdCDrWniCRkaw/jlu3HI77ePq72kz+9/vr5r9dP7z5uXHh4eHijW09+Jrmh5Lba/5/fwzePAA8PD+8aLz/i228l3/0d05YZPDw8vNfhtWF3VhLaT+Lh4eG9Mm929Oexu8Xj4eHh/S8vb6fm7de8ubBv7x7oteDh4eHFvFNjrWe+vjjfw8PDw1tM1ZMrH3rlg7GkkRHdGx4eHt4F3u/NgnYBqw2+e2RUMPDw8PCO8tr2a9sgmI219sO2T3UPDw8P7ygvOe6H1SYoPHkoT/5SFwk8PDy8EW8WedthVR6OZ9H8QBsXDw8P7yhvP6rP4/VmkeuPBi4eHh7eU3h5mJ69m4T4NqAX8z08PDy8ES9vkm7Ws/YzuuR/FsEaDw8Pb8FrB1F5A7cda21KAh4eHt7zeUnkbWP3/kYPtC3w8PDwLvBmY63ZYtasTdy2M+rAjYeHh7fg5UtXeVzeL2zNsnHRFcbDw8Mb8WbHdxuOZ83cdnkLDw8P7zavXaWalYF8OeBUmC42I/Dw8PBGvPzQT/DJgC0HtwM5PDw8vP/i1ak8js77rklRkPDw8PAu8G6P+WeDrvyh14sCeHh4eGve5oifwWa/0jZwv4nUeHh4eId4s9uarWptmg6zRjMeHh7ePd6sGbFfNWhvuqXi4eHh3ePNmrazY30fvvO2CB4eHt5zeO14qRjkj8Zpj9H1x5QPDw8Pb8HbBOXZ2XsqoCeFBw8PD+8Gb1hJgkidfGs2YGvHaXh4eHg3eG0xOLsiMHt8RWHAw8PDu8ZLxk5n363H/2VZwsPDw3sd3qxxcKqEJEM1PDw8vNfhzWL37KEk/YTDhQEPDw/vQp8zObJnsXu2nlVnbTw8PLxDvHYANisSeSs2LwBRpMbDw8M7yXsHyJanrMlCJbQAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
