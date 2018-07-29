@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2018/07/29/machine-learning-pca/">
+    
+    
+    <title>机器学习笔记13: 主成分分析 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="机器学习">
+    <meta name="description" content="上一节我们介绍了因子分析，该模型通过一系列变换可以将高维数据用低维数据来表示。因子分析基于的是概率模型，并且需要用到EM算法进行参数估计。 这一节我们介绍主成分分析(Principal Components Analysis, PCA)，这也是一种可以将高维数据映射到低维数据的方法，但是这种方法更加直接，计算方法也更为简单。 问题假设我们有一个数据集{x(i); i=1, …, m}表示m种不同汽">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习笔记13: 主成分分析">
+<meta property="og:url" content="http://www.secondplayer.top/2018/07/29/machine-learning-pca/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="上一节我们介绍了因子分析，该模型通过一系列变换可以将高维数据用低维数据来表示。因子分析基于的是概率模型，并且需要用到EM算法进行参数估计。 这一节我们介绍主成分分析(Principal Components Analysis, PCA)，这也是一种可以将高维数据映射到低维数据的方法，但是这种方法更加直接，计算方法也更为简单。 问题假设我们有一个数据集{x(i); i=1, …, m}表示m种不同汽">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-5fba0b26bbf8d248.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-2e108d90b6fe8728.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-236244490e464667.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-5fee9a37e3bf7cca.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-7a8941cead3c9fdb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-d0b1721c2c921986.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-3d0f8f7349386915.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-07-29T15:13:41.885Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习笔记13: 主成分分析">
+<meta name="twitter:description" content="上一节我们介绍了因子分析，该模型通过一系列变换可以将高维数据用低维数据来表示。因子分析基于的是概率模型，并且需要用到EM算法进行参数估计。 这一节我们介绍主成分分析(Principal Components Analysis, PCA)，这也是一种可以将高维数据映射到低维数据的方法，但是这种方法更加直接，计算方法也更为简单。 问题假设我们有一个数据集{x(i); i=1, …, m}表示m种不同汽">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2245716-5fba0b26bbf8d248.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">机器学习笔记13: 主成分分析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">机器学习笔记13: 主成分分析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-07-29T15:13:41.000Z" itemprop="datePublished" class="page-time">
+  2018-07-29
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#问题"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#主成分分析"><span class="post-toc-number">2.</span> <span class="post-toc-text">主成分分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">3.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">4.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-machine-learning-pca"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">机器学习笔记13: 主成分分析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-07-29 23:13:41" datetime="2018-07-29T15:13:41.000Z"  itemprop="datePublished">2018-07-29</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>上一节我们介绍了因子分析，该模型通过一系列变换可以将高维数据用低维数据来表示。因子分析基于的是概率模型，并且需要用到EM算法进行参数估计。</p>
+<p>这一节我们介绍<strong>主成分分析</strong>(Principal Components Analysis, PCA)，这也是一种可以将高维数据映射到低维数据的方法，但是这种方法更加直接，计算方法也更为简单。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>假设我们有一个数据集{x<sup>(i)</sup>; i=1, …, m}表示m种不同汽车的特征，比如最大速度，转速等等。其中有两个特征x<sub>i</sub>和x<sub>j</sub>都表示汽车的最大速度，区别是一个以英里/小时作为单位，另一个以千米/小时作为单位。因此这两个特征是线性相关的，最多包含由于四舍五入导致的细微差别。因此数据的特征数可以缩减成n - 1维，那么我们如何自动检测并去除这一冗余的特征呢？</p>
+<p>再假设我们有一个数据集表示对无线电遥控直升机的飞行员的调查，其中x<sub>1</sub><sup>(i)</sup>表示第i个飞行员的遥控技能，x<sub>2</sub><sup>(i)</sup>表示第i个飞行员有多热爱遥控直升机这件事。由于遥控直升机是一件非常难掌握的技能，所以只有非常热爱这件事情的人才能成为出色的飞行员。因此这两个特征是强相关的。如下图所示，x<sub>1</sub>和x<sub>2</sub>可以认为是在u<sub>1</sub>这条轴上并且伴有一些噪声的扰动，那么我们如何计算出u<sub>1</sub>呢？</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5fba0b26bbf8d248.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="主成分分析"><a href="#主成分分析" class="headerlink" title="主成分分析"></a>主成分分析</h2><p>PCA算法的第一步是对数据进行预处理，目的是将均值和方差归一化，具体步骤如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2e108d90b6fe8728.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>对数据归一化后，我们应该如何计算u呢？考虑如下图的数据集，这些数据已经经过归一化处理了：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-236244490e464667.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>假设我们选取u为下图所示方向，图中圆点表示原始数据在u上的投影：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5fee9a37e3bf7cca.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以看到投影后的数据有较大的方差，并且投影点离原点也较远。相反地，如果我们选取如下图所示的方向：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7a8941cead3c9fdb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这个图上投影后的数据的方差较小，并且投影点离原点较近。</p>
+<p>我们希望选择前面两张图中的第一张图，并且是以一种自动的方式。将上述过程形式化，给定一个单位向量u和点x，x在u上的投影距离是x<sup>T</sup>u，由于我们希望将投影距离的方差最大化，所以目标是选择u使得下面的式子最大化：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d0b1721c2c921986.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式右边括号内的部分正是样本数据的协方差矩阵Σ，因此左边的式子就是样本数据的<strong>特征向量</strong>(eigenvector)。</p>
+<p>因此，如果我们只需要映射到一维空间，那么我们应该选择Σ的特征向量。更一般地，如果我们希望映射到k维空间，那么我们应该选择Σ的前k个特征向量。</p>
+<p>得到前k个特征向量后，x<sup>(i)</sup>可以被表示成：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-3d0f8f7349386915.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通过如上变换，y<sup>(i)</sup>给出了x<sup>(i)</sup>的一个低维的近似表示。因此，PCA通常被认为是一种<strong>降维</strong>(dimensionality reduction)算法，向量u<sub>1</sub>, … u<sub>k</sub>被称为数据的前k个<strong>主成分</strong>(principal components)。</p>
+<p>PCA有着非常广泛的应用。第一个应用是数据压缩，如果可以将很高维的数据降低到两三维，那么可以获得很高的压缩率。第二个应用是在监督学习算法中降低特征的个数，较少的个数不仅可以在计算上花费更少的时间，而且可以降低假设函数的复杂度。第三个应用是在图像处理中进行降噪，比如在人脸识别应用中，我们可以先使用PCA将图像降维成100*100维的向量，这个过程可以去除图像中冗余的特征，而且最大程度地保留了图像原有的信息。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>主成分分析是一种常见的降维算法，该算法不依赖任何概率模型，并且能最大程度地保留原始数据信息</li>
+<li>主成分分析的步骤首先是对均值和方差进行归一化，然后求出样本数据的协方差矩阵的前k个特征向量，前k个特征向量也被称为数据的前k个主成分</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes10.pdf" target="_blank" rel="external">Factor Analysis</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/M/E/M6SGF6VB4_M6SGKIEME.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2018-07-29T15:13:41.885Z" itemprop="dateUpdated">2018-07-29 23:13:41</time>
+</span><br>
+
+
+        
+        <a href="/2018/07/29/machine-learning-pca/" target="_blank" rel="external">http://www.secondplayer.top/2018/07/29/machine-learning-pca/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&title=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&title=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/07/29/machine-learning-pca/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/07/15/machine-learning-factor-analysis/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">机器学习笔记12: 因子分析</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Valine Comments -->
+    <div class="comments vcomment" id="comments"></div>
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+          return GUEST_INFO.indexOf(item) > -1
+        });
+        new Valine({
+            el: '#comments',
+            notify: 'false' == 'true',
+            verify: 'false' == 'true',
+            appId: "9Igi0ekMnJy1GPd4IP3n1AvX-gzGzoHsz",
+            appKey: "4YLq9PqAFlVgrofe0MbTQ746",
+            avatar: "",
+            placeholder: "Just say something",
+            guest_info: guest_info.length == 0 ? GUEST_INFO : guest_info,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_minicode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_minicode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2018</span>
+            <span>
+                
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&title=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&title=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/07/29/machine-learning-pca/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记13: 主成分分析》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/07/29/machine-learning-pca/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMElEQVR42u3a0U7DMAwF0P3/TxcJ8QCCdfcm3cSSk6dqGm1PkDzb8e0Wr+Nzfb/+/sm977ffSf5qamFgYLwt4zhdvxnnjzy/Q87L3w0DA2MfRhtk83CZbEFy/eCdMTAwME6vE0CyBRgYGBhXBdyWlyd8GBgYGOeM5NZtcdsmiy+qxTEwMN6QMXYw8Jrrp59vYGBg/HvGUa6clz935n2+7oCBgbE0I0nU2pQuSRznjx9u7cthYGC8LWO+vJwh5fd8EMoxMDCWZsy028aa+2PDYREMAwNjA0aSnOWN/uQ4YWywDAMDY2dGmybmgbj9Zj1mgYGBsQFjrBBNCs42WbxqaAwDA2M9xkzxmZea84NfxREmBgbGQow2RcsTuPmks/gxwMDA2IYx3whrDxvakhUDA2NPRj69kCd8SUrXBta63YaBgbEB46qULh+zeErAxcDAWIKRtM/GBiDa4JsH4rv9QgwMjC0ZYwNbV21HgcTAwFia0TbI8mZZG0AvS0kxMDCWYxzBSoLp2NBGHj+n/gMYGBhLMAZHHE43Yiaw5lvwo92GgYGxKKMtEdtRjCS4z6SSddjFwMB4Q8ZRrrZJl3zSDmfc/d3AwMBYlJGv9jAyTxbbwwYMDIw9GfNHAnmAzsN3PgiCgYGxD6NttI0dSdaRPk8KMTAwMMrkb6zcbZNLDAwMjPbxYy80Fmr/uBsGBsYGjLbUHBubaINp/kQMDIy1GTMhb6zczYNpu30YGBjLMT4AbISJh7g682cAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
