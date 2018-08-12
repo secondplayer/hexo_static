@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-07-29T15:15:58.482Z</updated>
+  <updated>2018-08-12T13:25:20.686Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,105 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记14: 独立成分分析</title>
+    <link href="http://www.secondplayer.top/2018/08/12/machine-learning-ica/"/>
+    <id>http://www.secondplayer.top/2018/08/12/machine-learning-ica/</id>
+    <published>2018-08-12T13:25:20.000Z</published>
+    <updated>2018-08-12T13:25:20.686Z</updated>
+    
+    <content type="html"><![CDATA[<p>这一节的主题是<strong>独立成分分析</strong>(Independent Components Analysis, ICA)。和PCA的降维思路不同，ICA主要解决的是找到数据背后的“独立”成分。我们从一个鸡尾酒会问题开始说起。</p>
+<p>在一个鸡尾酒会中假设有n个人同时说话，屋子里的n个麦克风记录着这n个人说话时叠加的声音。由于每个麦克风离人的距离不同，它所采集到的声音是不同的，但都是这n个人声音的一种组合。那么问题是根据这些采集到的声音，我们是否可以还原每个人说话的声音？</p>
+<p>该问题可以形式化地描述为，从n个独立的数据源s ∈ R<sup>n</sup>中我们观察到了叠加数据x，其中x可以表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-52124338fde83c6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中A是一个未知的方阵，我们称为<strong>混合矩阵</strong>(mixing matrix)。我们观察到的数据是{x<sup>(i)</sup>; i=1,…,n}，我们的目标是求出源数据{s<sup>(i)</sup>; i=1,…,n}。</p>
+<p>在鸡尾酒会问题中，s<sup>(i)</sup>是个n维向量，s<sub>j</sub><sup>(i)</sup>表示第j个人在i时刻发出的声音。同样，x<sup>(i)</sup>也是个n维向量，x<sub>j</sub><sup>(i)</sup>表示第j个麦克风在i时刻采集到的声音。</p>
+<p>令W = A<sup>-1</sup>表示<strong>解析矩阵</strong>(unmixing matrix)，我们只需要求出W，然后根据s<sup>(i)</sup> = Wx<sup>(i)</sup>就能求出s<sup>(i)</sup>。为了简化描述，我们用w<sub>i</sub><sup>T</sup>表示W的第i行，因此W可表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-76ead6479cb277ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="ICA的不确定性"><a href="#ICA的不确定性" class="headerlink" title="ICA的不确定性"></a>ICA的不确定性</h2><p>如果我们对源数据和混合矩阵没有任何先验知识的话，在求混合矩阵的过程中会存在不确定性。</p>
+<p>第一个不确定性来自于源数据的顺序。当源数据的顺序交换后，对混合矩阵的列之间进行对应的交换能够保证生成同样的数据。</p>
+<p>第二个不确定性来自于对源数据的缩放。假设我们用2A来替代A，0.5s<sup>(i)</sup>替代s<sup>(i)</sup>，那么x<sup>(i)</sup> = 2A · 0.5s结果不变，因而s<sup>(i)</sup>和A的值不是唯一确定的。</p>
+<p>第三个不确定性来自于源数据不能是高斯分布的。如果源数据s<sup>(i)</sup>是高斯分布的，我们可以证明混合矩阵A不是唯一的。证明如下：</p>
+<p>令R是任意<strong>正交矩阵</strong>(orthogonal matrix)，因而RR<sup>T</sup> = I。令A’ = AR并将A替换成A’，那么x’ = A’s，并且x’也是高斯分布的，其均值为0，方差为E[x’(x’)<sup>T</sup>] = E[A’ss<sup>T</sup>(A’)<sup>T</sup>] = E[ARss<sup>T</sup>(AR)<sup>T</sup>] = ARR<sup>T</sup>A<sup>T</sup> = AA<sup>T</sup>。也就是说，无论是A还是A’，我们观察到的数据都是服从N(0, AA<sup>T</sup>)的高斯分布，因此我们没法区分混合矩阵究竟是A还是A’。</p>
+<h2 id="密度函数和线性变换"><a href="#密度函数和线性变换" class="headerlink" title="密度函数和线性变换"></a>密度函数和线性变换</h2><p>在推导ICA算法之前，我们先讨论线性变换后的密度函数。</p>
+<p>假设随机变量s的概率密度函数为p<sub>s</sub>(s)，另一个随机变量x = As，其中A是一个可逆的方阵，x的概率密度函数是p<sub>x</sub>，那么p<sub>x</sub>为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-679e14f93e7142c4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中W = A<sup>-1</sup>。</p>
+<h2 id="ICA算法"><a href="#ICA算法" class="headerlink" title="ICA算法"></a>ICA算法</h2><p>现在我们正式推导ICA算法，这个算法主要归功于Bell和Sejnowski，但我们这里使用最大似然估计法来进行解释。算法原始的版本用了一种更为复杂的方法，但对于目前我们理解ICA算法不是必要的。</p>
+<p>假设每个源数据s<sup>(i)</sup>的概率密度函数是p<sub>s</sub>，那么它们的联合分布为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c060e554d795643c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这里我们假设每个源数据都是互相独立的。再根据上一节的公式，由于有x = As这样的线性变换，所以：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-08354345d4dff761.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>前面提过如果没有任何先验知识，W和s是无法唯一确定的，因此我们这里对s的概率密度函数做一定假设，同时根据前面讨论p<sub>s</sub>(s)不能是高斯分布的。我们知道密度函数可以通过对累计分布函数求导获得，而累计分布函数必须是在0到1之间单调递增的函数，因此我们可以选取sigmoid函数作为默认的累计分布函数。所以p<sub>s</sub>(s) = g’(s)，其中g(s) = 1 / (1 + e<sup>-s</sup>)。</p>
+<p>确定了p<sub>s</sub>(s)后，W是模型里唯一需要求解的参数了。给定训练数据集{x<sup>(i)</sup>; i=1,…,n}，通过最大似然估计法可得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c0dfe235db980491.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>对l(W)求导并且根据∇<sub>W</sub>|W| = |W|(W<sup>-1</sup>)<sup>T</sup>的事实，我们可得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2d6971c69dff2ada.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中α是学习率。</p>
+<p>算法收敛后即可得到参数W，然后通过s<sup>(i)</sup> = Wx<sup>(i)</sup>就能还原出源数据了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>独立成分分析(ICA)算法可以用于求解类似鸡尾酒会类型的问题，在已知叠加数据的情况下还原出源数据</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes11.pdf" target="_blank" rel="external">Independent Components Analysis</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/J/V/M6SGF6VB4_M6SGKINJV.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这一节的主题是&lt;strong&gt;独立成分分析&lt;/strong&gt;(Independent Components Analysis, ICA)。和PCA的降维思路不同，ICA主要解决的是找到数据背后的“独立”成分。我们从一个鸡尾酒会问题开始说起。&lt;/p&gt;
+&lt;p&gt;在一个鸡尾酒会中假
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记13: 主成分分析</title>
