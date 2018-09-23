@@ -43,7 +43,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-5fcc18af6d214177.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-3f36238000aa28d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-6a02b9736ad7fec9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-09-23T15:21:33.250Z">
+<meta property="og:updated_time" content="2018-09-23T15:33:23.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习笔记16: 马尔可夫决策过程(下)">
 <meta name="twitter:description" content="到目前为止，我们一直都在讨论有限状态下的MDP问题，现在我们来看下当状态数量是无限时如何求解MDP问题。 离散化也许求解无限状态下的MDP问题最简单的方法就是先将无限状态离散化成有限状态，然后再用之前介绍的价值迭代或者策略迭代算法了。 假设我们有两个状态s1和s2，我们可以用下图所示的网格来离散化这个状态空间。">
@@ -214,7 +214,7 @@
                 </div>
                 <div class="image-caption"></div>
             </figure>
-<p>图中的每一个网格都代表独立的离散状态$\overline{s}$，因此我们可以把无限状态的MDP近似表示成($\overline{S}$, A, {P<sub>$\overline{s}$a</sub>}, γ, R)，其中$\overline{S}$是所有离散状态的集合，{P<sub>$\overline{s}$a</sub>}是在状态$\overline{s}$采取行动a的概率分布。然后我们就可以用价值迭代或者策略迭代算法求出V<sup>*</sup>($\overline{s}$)和π<sup>*</sup>($\overline{s}$)。</p>
+<p>图中的每一个网格都代表独立的离散状态s<sup>*</sup>，因此我们可以把无限状态的MDP近似表示成(S<sup>*</sup>, A, {P<sub>s<sup>*</sup>a</sub>}, γ, R)，其中S<sup>*</sup>是所有离散状态的集合，{P<sub>s<sup>*</sup>a</sub>}是在状态s<sup>*</sup>采取行动a的概率分布。然后我们就可以用价值迭代或者策略迭代算法求出V<sup>*</sup>(s<sup>*</sup>)和π<sup>*</sup>(s<sup>*</sup>)。</p>
 <p>离散化的方法可以在很多场景都有很好的应用，但是它也有两个明显的缺点。第一个缺点是离散化只是对连续状态的近似，有时会有很大的误差。</p>
 <p>为了更好地理解这一点，考虑如下的监督学习问题：</p>
 <figure class="image-bubble">
@@ -342,7 +342,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2018-09-23T15:21:33.250Z" itemprop="dateUpdated">2018-09-23 23:21:33</time>
+    Last updated: <time datetime="2018-09-23T15:33:23.943Z" itemprop="dateUpdated">2018-09-23 23:33:23</time>
 </span><br>
 
 
