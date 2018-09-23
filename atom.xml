@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-09-01T12:32:29.277Z</updated>
+  <updated>2018-09-23T15:21:33.250Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,157 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记16: 马尔可夫决策过程(下)</title>
+    <link href="http://www.secondplayer.top/2018/09/23/machine-learning-mdp-part-two/"/>
+    <id>http://www.secondplayer.top/2018/09/23/machine-learning-mdp-part-two/</id>
+    <published>2018-09-23T15:21:33.000Z</published>
+    <updated>2018-09-23T15:21:33.250Z</updated>
+    
+    <content type="html"><![CDATA[<p>到目前为止，我们一直都在讨论有限状态下的MDP问题，现在我们来看下当状态数量是无限时如何求解MDP问题。</p>
+<h2 id="离散化"><a href="#离散化" class="headerlink" title="离散化"></a>离散化</h2><p>也许求解无限状态下的MDP问题最简单的方法就是先将无限状态离散化成有限状态，然后再用之前介绍的价值迭代或者策略迭代算法了。</p>
+<p>假设我们有两个状态s<sub>1</sub>和s<sub>2</sub>，我们可以用下图所示的网格来离散化这个状态空间。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b3497fc7dad29d84.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>图中的每一个网格都代表独立的离散状态$\overline{s}$，因此我们可以把无限状态的MDP近似表示成($\overline{S}$, A, {P<sub>$\overline{s}$a</sub>}, γ, R)，其中$\overline{S}$是所有离散状态的集合，{P<sub>$\overline{s}$a</sub>}是在状态$\overline{s}$采取行动a的概率分布。然后我们就可以用价值迭代或者策略迭代算法求出V<sup>*</sup>($\overline{s}$)和π<sup>*</sup>($\overline{s}$)。</p>
+<p>离散化的方法可以在很多场景都有很好的应用，但是它也有两个明显的缺点。第一个缺点是离散化只是对连续状态的近似，有时会有很大的误差。</p>
+<p>为了更好地理解这一点，考虑如下的监督学习问题：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-e869bfdb25ad4170.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如果我们用线性回归作拟合，那么拟合效果是很好的。但是如果我们用离散化的方法去作拟合，那么拟合效果就如下图所示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-9af860dddd7e6296.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>离散化的方法无法精确表示光滑曲线，如果需要降低误差，那么需要将离散化的粒度变得更小。</p>
+<p>离散化的第二个缺点被称为<strong>维度的诅咒</strong>(curse of dimensionality)。假设我们把n维状态空间离散化成k份，那么所有离散状态的总数是k<sup>n</sup>个。当n值变大时，所有离散状态的总数呈指数性增长。比如当n=10，k=100时，所有离散状态的总数是100<sup>10</sup> = 10<sup>20</sup>个，这个数字对于现在的计算机来说也是很难处理过来的。</p>
+<p>作为一个经验法则，离散化通常对1维或2维状态的问题有较好的效果。如果处理得当，离散化也能很好处理4维状态。在极端情况下，离散化最多能处理到6维状态。一旦维数超过6，那么离散化将很难发挥出作用。</p>
+<h2 id="价值函数近似"><a href="#价值函数近似" class="headerlink" title="价值函数近似"></a>价值函数近似</h2><p>现在我们介绍另一种求解无限状态下MDP问题的方法，这次我们来直接估计V<sup>*</sup>。这个方法叫做<strong>价值函数近似</strong>(value function approximation)，在强化学习问题中有着成功的应用。</p>
+<h3 id="使用模型"><a href="#使用模型" class="headerlink" title="使用模型"></a>使用模型</h3><p>在价值函数近似算法中，我们需要训练一个<strong>模型</strong>(model)，也称为<strong>模拟器</strong>(simulator)。简单来说，模拟器就是一个黑箱，它的输入是任意状态s<sub>t</sub>和行动a<sub>t</sub>，输出是根据状态转换概率P<sub>s<sub>t</sub>a<sub>t</sub></sub>得到的下一个状态s<sub>t+1</sub>。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-e8fd33bee4371fa1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以有多种方法获得这个模型。一种方法是通过物理模拟，比如我们可以通过物理定律和已知参数进行推导，或者使用现成的物理模拟软件进行建模。</p>
+<p>另一种获得模型的方法从MDP的训练数据中进行学习。比如我们进行m次MDP的<strong>试验</strong>(trial)，每次试验进行T个时间序列步骤。这样我们就得到了如下m次试验数据：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7ee694793d4cb7b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以将s<sub>t+1</sub>看成是一个以s<sub>t</sub>和a<sub>t</sub>为参数的函数，然后通过某个学习算法求得该函数。</p>
+<p>比如我们可以选择如下的线性模型：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5dbcd6f8e98048d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通过线性回归的算法可以求得模型中的参数，也就是A和B两个矩阵。通过最大似然估计法，可以求得参数为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-f03858c6cc5c3635.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>求出A和B两个参数后，一种方法是建立一个<strong>确定</strong>(deterministic)模型，也就是通过等式(5)给定参数s<sub>t</sub>和a<sub>t</sub>来唯一确定s<sub>t+1</sub>。另一种方法是建立一个<strong>随机</strong>(stochastic)模型，也就是说s<sub>t+1</sub>是关于输入的一个随机函数，这个模型可以表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-ca7372707f029258.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中ε<sub>t</sub>是噪音项，通常来说ε<sub>t</sub> ~ N(0, Σ)。</p>
+<p>上面我们假设s<sub>t+1</sub>是关于当前状态和行动的线型函数，但在实际情况中，非线性函数也是有可能的。这时我们可以把模型表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-370a97ea91092d6d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中φ<sub>s</sub>和φ<sub>a</sub>是关于状态和行动的某个非线性函数。另外我们也可以使用非线性学习算法，比如局部加权线性回归算法来估计参数。上述方法在构建MDP的确定模型和随机模型中都适用。</p>
+<h3 id="拟合的价值迭代"><a href="#拟合的价值迭代" class="headerlink" title="拟合的价值迭代"></a>拟合的价值迭代</h3><p>现在我们介绍<strong>拟合价值迭代</strong>(fitted value iteration)算法，它同样用于求解无限状态下的MDP问题。这里我们假设连续状态空间S = R<sup>n</sup>，行动空间A规模很小且是离散的。</p>
+<p>回顾一下在价值迭代算法中，我们每次都是在更新：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-85236cea0b99221e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>注意，由于现在状态空间是连续的，所以这里用积分的方式来替代求和。</p>
+<p>拟合价值迭代的中心思想是通过某个监督学习算法（这里我们用线性回归）来近似求出价值函数，其中价值函数是关于状态的线性或非线性函数，可以用下式表示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5fcc18af6d214177.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中φ是关于状态的某个映射函数。算法步骤描述如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-3f36238000aa28d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>算法的每次循环中，首先每次取样出k个状态，然后计算出y<sup>(i)</sup>，这个值正是对V(s)的近似（等式7的右边）。最后通过应用监督学习算法（线性回归）使得V(s)与y<sup>(i)</sup>尽可能的接近。</p>
+<p>和有限状态的价值迭代算法不同，拟合价值迭代并不能保证算法总是收敛的。然而在实际应用中，算法通常是收敛的。注意，如果我们使用上一小节介绍的确定性的模型，那么价值迭代算法可以通过令k=1的方式进行简化。</p>
+<p>最后，拟合价值迭代算法输出的是V，这是对V<sup>*</sup>的近似。特别地，当系统处于某个状态s时，我们需要选择一个行动，这个行动a将会是：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-6a02b9736ad7fec9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>计算这个值的过程和拟合价值迭代算法的内层循环很相似。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>无限状态下MDP问题可以通过两个算法求解：离散化和价值函数近似</li>
+<li>离散化通常对2维以下状态的问题有较好的效果，极端情况下最多适用于6维以下状态</li>
+<li>价值函数近似又可分为两种：使用模型和拟合价值迭代，其思想在于通过某种方法（物理模拟或算法学习）求得价值函数的一个近似值</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes12.pdf" target="_blank" rel="external">Reinforcement Learning and Control</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/N/6/M6SGF6VB4_M6SGKVGN6.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;到目前为止，我们一直都在讨论有限状态下的MDP问题，现在我们来看下当状态数量是无限时如何求解MDP问题。&lt;/p&gt;
+&lt;h2 id=&quot;离散化&quot;&gt;&lt;a href=&quot;#离散化&quot; class=&quot;headerlink&quot; title=&quot;离散化&quot;&gt;&lt;/a&gt;离散化&lt;/h2&gt;&lt;p&gt;也许求解无限
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记15: 马尔可夫决策过程(上)</title>
