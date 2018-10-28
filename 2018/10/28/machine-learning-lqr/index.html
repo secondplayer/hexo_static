@@ -55,7 +55,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-797fd06fc36b363f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-9a281f714ccacef3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-fcc7021ac599da82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-10-28T12:40:06.269Z">
+<meta property="og:updated_time" content="2018-10-28T12:54:57.826Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习笔记17: 线性二次型调节控制">
 <meta name="twitter:description" content="有限边界的MDP在前面两章关于强化学习的介绍中，我们定义了马尔可夫决策过程(MDP)以及价值迭代/策略迭代这两种用于求解MDP的算法。特别地，我们介绍了最优贝尔曼方程(optimal Bellman equation)，它定义了在最佳策略π*下的最佳价值函数Vπ*：">
@@ -233,9 +233,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>在这一章中，我们会将此扩展到一个更通用的情况下：</p>
-<ol>
-<li>我们需要将等式改写成同时满足离散和连续两种情况，因此我们将原来式子中求和的部分改写为：</li>
-</ol>
+<p>(1). 我们需要将等式改写成同时满足离散和连续两种情况，因此我们将原来式子中求和的部分改写为：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
                     <div class="overlay"></div>
@@ -244,9 +242,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>这代表着我们取的是价值函数在下一个状态下的期望值。在离散的情况下，期望值可以改写成状态的求和；在连续的情况下，期望值可以改写成状态的积分。符号s′ ~ P<sub>sa</sub>表示下一个状态s′ 以P<sub>sa</sub>的概率取样得到。</p>
-<ol>
-<li>我们假设奖励函数同时取决于状态和行动，简而言之就是，R: S × A → R。因此原来式子需要改写为：</li>
-</ol>
+<p>(2). 我们假设奖励函数同时取决于状态和行动，简而言之就是，R: S × A → R。因此原来式子需要改写为：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
                     <div class="overlay"></div>
@@ -254,9 +250,7 @@
                 </div>
                 <div class="image-caption"></div>
             </figure>
-<ol>
-<li>原来的MDP是没有<strong>时间边界</strong>(time horizon)的，现在我们假设有时间边界T，并定义<strong>有限边界的MDP</strong>(finite horizon MDP)由如下五元组构成：</li>
-</ol>
+<p>(3). 原来的MDP是没有<strong>时间边界</strong>(time horizon)的，现在我们假设有时间边界T，并定义<strong>有限边界的MDP</strong>(finite horizon MDP)由如下五元组构成：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
                     <div class="overlay"></div>
@@ -299,9 +293,7 @@
             </figure>
 <p>这里的上标t表明当前策略在t时刻。具体来说就是，首先我们处于初始状态s<sub>0</sub>，然后根据时刻0的策略采取行动a<sub>0</sub> := π<sup>(0)</sup>s<sub>0</sub>，随后状态按照P<sub>s<sub>0</sub>a<sub>0</sub></sub>的概率转移到下一个状态s<sub>1</sub>，然后根据时刻1的策略采取行动a<sub>1</sub> := π<sup>(1)</sup>s<sub>1</sub>，以此类推。</p>
 <p>为什么说最佳策略π<sup>*</sup>是非稳定的呢？直觉上来说，我们只能采取有限的行动，我们使用的策略取决于当前的环境以及我们还剩下多少时间。我们可以考虑如下的场景：在地图中分别有两个奖励+1和+10。起初我们的策略是选择接近+10的奖励，但是随着时间的推移，由于我们没有足够的步数到达+10，这时就迫使我们采取到达离我们更近的+1奖励。</p>
-<ol>
-<li>状态转换概率也随着时间而变化，即在时刻t下的状态转换概率为P<sup>(t)</sup><sub>s<sub>t</sub>a<sub>t</sub></sub>。同样，奖励函数R<sup>(t)</sup>也随着时间而变化。</li>
-</ol>
+<p>(4). 状态转换概率也随着时间而变化，即在时刻t下的状态转换概率为P<sup>(t)</sup><sub>s<sub>t</sub>a<sub>t</sub></sub>。同样，奖励函数R<sup>(t)</sup>也随着时间而变化。</p>
 <p>将上述几点统一起来，有限边界的MDP由如下五元组构成：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
@@ -327,9 +319,7 @@
                 <div class="image-caption">最优价值函数</div>
             </figure>
 <p>在标准的价值迭代算法中，我们在每次迭代中使用了贝尔曼方程(题外话：贝尔曼是动态规划的创始人，贝尔曼方程在动态规划领域密切相关)。而在有限边界的MDP问题中，我们也采取基于迭代的算法，为了更好的进行说明，我们先看如下两个观察：</p>
-<ol>
-<li>在最后时刻T，最优价值函数显然为：</li>
-</ol>
+<p>(1). 在最后时刻T，最优价值函数显然为：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
                     <div class="overlay"></div>
@@ -337,9 +327,7 @@
                 </div>
                 <div class="image-caption"></div>
             </figure>
-<ol>
-<li>在其他时刻 0 ≤ t &lt; T，如果我们知道下一时刻的最优价值函数V<sup>*</sup><sub>t+1</sub>，那么我们有：</li>
-</ol>
+<p>(2). 在其他时刻 0 ≤ t &lt; T，如果我们知道下一时刻的最优价值函数V<sup>*</sup><sub>t+1</sub>，那么我们有：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
                     <div class="overlay"></div>
@@ -348,10 +336,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>有了上面两个观察，我们可以得到求解有限边界MDP的最优价值函数的算法：</p>
-<ol>
-<li>根据等式(1)求得V<sup>*</sup><sub>T</sub></li>
-<li>对每一个t = T - 1, …, 1, 0:<br> 根据等式(2)和V<sup>*</sup><sub>t + 1</sub>计算出V<sup>*</sup><sub>t</sub></li>
-</ol>
+<p>(1). 根据等式(1)求得V<sup>*</sup><sub>T</sub><br>(2). 对每一个t = T - 1, …, 1, 0:<br>    根据等式(2)和V<sup>*</sup><sub>t + 1</sub>计算出V<sup>*</sup><sub>t</sub></p>
 <h2 id="线性二次型调节控制"><a href="#线性二次型调节控制" class="headerlink" title="线性二次型调节控制"></a>线性二次型调节控制</h2><p>这一节我们介绍一个特殊的有限边界MDP的模型，它被称为<strong>线性二次型调节控制</strong>(Linear Quadratic Regulation (LQR))，这个模型广泛应用于<strong>机器人学</strong>(robotics)中。</p>
 <p>首先我们明确下这个模型做了哪些假设。这个模型的状态和行动是连续的，并且：</p>
 <figure class="image-bubble">
@@ -398,9 +383,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>的情况下，我们想要计算V<sup>*</sup><sub>t</sub>，我们用上一小节介绍的动态规划算法求解，具体来说就是：</p>
-<ol>
-<li>初始化</li>
-</ol>
+<p>(1). 初始化</p>
 <p>对于最后时刻T，我们有：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
@@ -409,9 +392,7 @@
                 </div>
                 <div class="image-caption"></div>
             </figure>
-<ol>
-<li>不断循环</li>
-</ol>
+<p>(2). 不断循环</p>
 <p>令 t &lt; T且假设我们已知V<sup>*</sup><sub>t + 1</sub>。</p>
 <p><strong>事实1：</strong>可以证明如果V<sup>*</sup><sub>t + 1</sub>是关于s<sub>t</sub>的二次函数，那么V<sup>*</sup><sub>t + 1</sub>也是一个二次函数。或者可以表述为存在某个矩阵Φ和某个标量Ψ使得：</p>
 <figure class="image-bubble">
@@ -479,7 +460,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2018-10-28T12:40:06.269Z" itemprop="dateUpdated">2018-10-28 20:40:06</time>
+    Last updated: <time datetime="2018-10-28T12:54:57.826Z" itemprop="dateUpdated">2018-10-28 20:54:57</time>
 </span><br>
 
 
