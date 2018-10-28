@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-09-23T15:33:23.943Z</updated>
+  <updated>2018-10-28T12:40:06.269Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,281 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记17: 线性二次型调节控制</title>
+    <link href="http://www.secondplayer.top/2018/10/28/machine-learning-lqr/"/>
+    <id>http://www.secondplayer.top/2018/10/28/machine-learning-lqr/</id>
+    <published>2018-10-28T12:40:06.000Z</published>
+    <updated>2018-10-28T12:40:06.269Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="有限边界的MDP"><a href="#有限边界的MDP" class="headerlink" title="有限边界的MDP"></a>有限边界的MDP</h2><p>在前面两章关于强化学习的介绍中，我们定义了马尔可夫决策过程(MDP)以及价值迭代/策略迭代这两种用于求解MDP的算法。特别地，我们介绍了<strong>最优贝尔曼方程</strong>(optimal Bellman equation)，它定义了在最佳策略π<sup>*</sup>下的最佳价值函数V<sup>π<sup>*</sup></sup>：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2553b7a070a9952a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在计算出最佳价值函数后，我们可以用下式求出最佳策略π<sup>*</sup>：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-9d5ca0b87c96c007.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在这一章中，我们会将此扩展到一个更通用的情况下：</p>
+<ol>
+<li>我们需要将等式改写成同时满足离散和连续两种情况，因此我们将原来式子中求和的部分改写为：</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5ce6af1d0312e8e6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这代表着我们取的是价值函数在下一个状态下的期望值。在离散的情况下，期望值可以改写成状态的求和；在连续的情况下，期望值可以改写成状态的积分。符号s′ ~ P<sub>sa</sub>表示下一个状态s′ 以P<sub>sa</sub>的概率取样得到。</p>
+<ol>
+<li>我们假设奖励函数同时取决于状态和行动，简而言之就是，R: S × A → R。因此原来式子需要改写为：</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7dee06b0acb3be44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li>原来的MDP是没有<strong>时间边界</strong>(time horizon)的，现在我们假设有时间边界T，并定义<strong>有限边界的MDP</strong>(finite horizon MDP)由如下五元组构成：</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-3316384295e9724b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在这种设定下，整个过程的奖励定义为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d5974a1862ff6433.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这个式子替代了之前的定义：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-e21fa8dfaaefd0be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在有限边界的MDP中，折扣因子γ不再出现。回顾下在无限边界的情况下，引入γ是为了让在无限状态的奖励函数是有界的，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-a376274f21df16ba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>而在有限边界的情况下，整个奖励函数是有限个奖励函数之和，因此γ没有存在的必要了。</p>
+<p>在有限边界的设定下，MDP的有些行为会有不一样的变化。最重要的变化是，最佳策略π<sup>*</sup>是<strong>非稳定的</strong>(non-stationary)，也就是说它是随着时间变化的，用数学的表达就是：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-799eb97a5527108e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这里的上标t表明当前策略在t时刻。具体来说就是，首先我们处于初始状态s<sub>0</sub>，然后根据时刻0的策略采取行动a<sub>0</sub> := π<sup>(0)</sup>s<sub>0</sub>，随后状态按照P<sub>s<sub>0</sub>a<sub>0</sub></sub>的概率转移到下一个状态s<sub>1</sub>，然后根据时刻1的策略采取行动a<sub>1</sub> := π<sup>(1)</sup>s<sub>1</sub>，以此类推。</p>
+<p>为什么说最佳策略π<sup>*</sup>是非稳定的呢？直觉上来说，我们只能采取有限的行动，我们使用的策略取决于当前的环境以及我们还剩下多少时间。我们可以考虑如下的场景：在地图中分别有两个奖励+1和+10。起初我们的策略是选择接近+10的奖励，但是随着时间的推移，由于我们没有足够的步数到达+10，这时就迫使我们采取到达离我们更近的+1奖励。</p>
+<ol>
+<li>状态转换概率也随着时间而变化，即在时刻t下的状态转换概率为P<sup>(t)</sup><sub>s<sub>t</sub>a<sub>t</sub></sub>。同样，奖励函数R<sup>(t)</sup>也随着时间而变化。</li>
+</ol>
+<p>将上述几点统一起来，有限边界的MDP由如下五元组构成：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-da1883dd05b9c55c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>策略π在时刻t的价值函数定义和之前一样，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d99a7d185dd8ae71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>那么现在的问题是，在有限边界的设定下，我们如何求得最优价值函数呢？</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-943dab964099bfd6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="最优价值函数" title="">
+                </div>
+                <div class="image-caption">最优价值函数</div>
+            </figure>
+<p>在标准的价值迭代算法中，我们在每次迭代中使用了贝尔曼方程(题外话：贝尔曼是动态规划的创始人，贝尔曼方程在动态规划领域密切相关)。而在有限边界的MDP问题中，我们也采取基于迭代的算法，为了更好的进行说明，我们先看如下两个观察：</p>
+<ol>
+<li>在最后时刻T，最优价值函数显然为：</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d014dc2be9e95263.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li>在其他时刻 0 ≤ t &lt; T，如果我们知道下一时刻的最优价值函数V<sup>*</sup><sub>t+1</sub>，那么我们有：</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-f39f4b7cd37c48a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>有了上面两个观察，我们可以得到求解有限边界MDP的最优价值函数的算法：</p>
+<ol>
+<li>根据等式(1)求得V<sup>*</sup><sub>T</sub></li>
+<li>对每一个t = T - 1, …, 1, 0:<br> 根据等式(2)和V<sup>*</sup><sub>t + 1</sub>计算出V<sup>*</sup><sub>t</sub></li>
+</ol>
+<h2 id="线性二次型调节控制"><a href="#线性二次型调节控制" class="headerlink" title="线性二次型调节控制"></a>线性二次型调节控制</h2><p>这一节我们介绍一个特殊的有限边界MDP的模型，它被称为<strong>线性二次型调节控制</strong>(Linear Quadratic Regulation (LQR))，这个模型广泛应用于<strong>机器人学</strong>(robotics)中。</p>
+<p>首先我们明确下这个模型做了哪些假设。这个模型的状态和行动是连续的，并且：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c30f9b9e796efd3d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>状态转换函数是线性的，且有噪音，表示如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-67174dbdd6000732.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中A<sub>t</sub> ∈ R<sup>n×n</sup>，B<sub>t</sub> ∈ R<sup>n×d</sup>是两个矩阵，w<sub>t</sub> ~ N(0, Σ<sub>t</sub>)是高斯分布的噪音。在后面的段落中我们会看到只要噪音的高斯分布的均值为0，噪音不会影响到最优价值的计算。</p>
+<p>我们继续假设奖励函数是二次函数，表示为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-2bee1366e899af11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中U<sub>t</sub> ∈ R<sup>n×n</sup>，W<sub>t</sub> ∈ R<sup>d×d</sup>是两个半正定矩阵，也就是说奖励函数的值永远是负数。</p>
+<p>现在我们已经完整定义了LQR模型的所有假设了，下面是求解LQR算法的两个步骤：</p>
+<p>第一步：假设我们不知道A, B, Σ这三个矩阵。为了预估这三个参数，我们可以参考在价值迭代那节中用模型学习的方法。首先我们执行任意策略，并收集数据。然后用线性回归的方法求得A和B，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-affdad28602b273c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>最后用高斯判别分析(GDA)模型中提到的方法求出Σ。</p>
+<p>第二步：假设A, B, Σ三个参数已知，我们可以通过动态规划求出最优价值函数。换句话说就是，给定：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-7ea8fd72683dc37f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>的情况下，我们想要计算V<sup>*</sup><sub>t</sub>，我们用上一小节介绍的动态规划算法求解，具体来说就是：</p>
+<ol>
+<li>初始化</li>
+</ol>
+<p>对于最后时刻T，我们有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c893e01e0aca940e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li>不断循环</li>
+</ol>
+<p>令 t &lt; T且假设我们已知V<sup>*</sup><sub>t + 1</sub>。</p>
+<p><strong>事实1：</strong>可以证明如果V<sup>*</sup><sub>t + 1</sub>是关于s<sub>t</sub>的二次函数，那么V<sup>*</sup><sub>t + 1</sub>也是一个二次函数。或者可以表述为存在某个矩阵Φ和某个标量Ψ使得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-6d5237ff020f9e18.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>当t = T时，我们有Φ<sub>t</sub> = -U<sub>T</sub>，Ψ<sub>t</sub> = 0。</p>
+<p><strong>事实2：</strong>可以证明最优价值函数是关于状态的线性函数。</p>
+<p>如果我们知道了V<sup>*</sup><sub>t + 1</sub>，就等价于知道了Φ<sub>t + 1</sub>和Ψ<sub>t + 1</sub>，所以我们只需要解释如何根据Φ<sub>t + 1</sub>和Ψ<sub>t + 1</sub>以及其他参数求出Φ<sub>t</sub>和Ψ<sub>t</sub>就行了。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-5d5961f779d342b2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>上式中第二行用到了最优价值函数的定义，第三行是将假设中的定义进行了代入。注意表达式最后是关于a<sub>t</sub>的二次参数，因此可以求出最优行动a<sup>*</sup><sub>t</sub>为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-797fd06fc36b363f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-9a281f714ccacef3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由此可见，最优策略是与s<sub>t</sub>线性相关的。基于a<sup>*</sup><sub>t</sub>我们可以求出Φ<sub>t</sub>和Ψ<sub>t</sub>的值，它们之间的关系也被称为<strong>离散Ricatti方程</strong>(Discrete Ricatti equations)。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-fcc7021ac599da82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>事实3：</strong>我们注意到Φ<sub>t</sub>的值与Ψ<sub>t</sub>和Σ<sub>t</sub>都无关。由于L<sub>t</sub>是关于A<sub>t</sub>，B<sub>t</sub>和Φ<sub>t + 1</sub>的函数，这表明最优策略也与噪音无关。</p>
+<p>最后总结一下，LQR问题求解的算法步骤如下：</p>
+<ol>
+<li>如果需要的话，先估计参数A<sub>t</sub>, B<sub>t</sub>, Σ<sub>t</sub></li>
+<li>初始化参数Φ<sub>T</sub> := -U<sub>T</sub>，Ψ<sub>T</sub> := 0</li>
+<li>对每一个t = T - 1, …, 1, 0，利用Φ<sub>t + 1</sub>，Ψ<sub>t + 1</sub>和离散Ricatti方程求出Φ<sub>t</sub>，Ψ<sub>t</sub>。如果存在某个策略使得状态趋于0，那么迭代一定是收敛的。</li>
+</ol>
+<p>利用<strong>事实3</strong>，我们可以使这个算法运行地更快一些。由于最优策略不依赖于Ψ<sub>t</sub>，并且Φ<sub>t</sub>的更新只依赖于Φ<sub>t</sub>，因此迭代时只更新Φ<sub>t</sub>就足够了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>在原有MDP的基础上引入了时间边界的概念，这类问题被称为有限边界的MDP，在这种设定下策略和价值函数都是不稳定的，也就是说它们是随着时间变化的</li>
+<li>线性二次型调节控制(LQR)是一个特殊的有限边界MDP模型，该模型广泛应用于机器人学中</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes13.pdf" target="_blank" rel="external">LQR, DDP and LQG</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/1/H/M6SGF6VB4_M6SGL3P1H.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;有限边界的MDP&quot;&gt;&lt;a href=&quot;#有限边界的MDP&quot; class=&quot;headerlink&quot; title=&quot;有限边界的MDP&quot;&gt;&lt;/a&gt;有限边界的MDP&lt;/h2&gt;&lt;p&gt;在前面两章关于强化学习的介绍中，我们定义了马尔可夫决策过程(MDP)以及价值迭代/策略迭代这
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记16: 马尔可夫决策过程(下)</title>
