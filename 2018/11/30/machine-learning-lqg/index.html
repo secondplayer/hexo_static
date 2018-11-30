@@ -22,13 +22,13 @@
     
     
     <meta name="keywords" content="机器学习">
-    <meta name="description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+    <meta name="description" content="线性二次型高斯(Linear Quadratic Gaussian (LQG))在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partial">
 <meta name="keywords" content="机器学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="机器学习笔记19: 线性二次型高斯">
 <meta property="og:url" content="http://www.secondplayer.top/2018/11/30/machine-learning-lqg/index.html">
 <meta property="og:site_name" content="SecondPlayer&#39;s Blog">
-<meta property="og:description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+<meta property="og:description" content="线性二次型高斯(Linear Quadratic Gaussian (LQG))在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partial">
 <meta property="og:locale" content="zh">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-96c2bacc61cdb0d2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
@@ -43,10 +43,10 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-0e5cbb5e21bea282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-eae168fbe89141e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-d7c676d8eaaf8618.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-11-30T15:04:05.588Z">
+<meta property="og:updated_time" content="2018-11-30T15:06:38.808Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习笔记19: 线性二次型高斯">
-<meta name="twitter:description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+<meta name="twitter:description" content="线性二次型高斯(Linear Quadratic Gaussian (LQG))在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partial">
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
     
         <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
@@ -180,7 +180,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">1.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">2.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#线性二次型高斯-Linear-Quadratic-Gaussian-LQG"><span class="post-toc-number">1.</span> <span class="post-toc-text">线性二次型高斯(Linear Quadratic Gaussian (LQG))</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">2.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">3.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
         </nav>
     </aside>
 
@@ -204,7 +204,7 @@
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <p>在现实世界中，我们通常不能获取到所有的状态s<sub>t</sub>。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个<strong>观察</strong>(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是<strong>部分可观测的MDP</strong>(Partially Observable MDP (POMDP))。</p>
+            <h2 id="线性二次型高斯-Linear-Quadratic-Gaussian-LQG"><a href="#线性二次型高斯-Linear-Quadratic-Gaussian-LQG" class="headerlink" title="线性二次型高斯(Linear Quadratic Gaussian (LQG))"></a>线性二次型高斯(Linear Quadratic Gaussian (LQG))</h2><p>在现实世界中，我们通常不能获取到所有的状态s<sub>t</sub>。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个<strong>观察</strong>(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是<strong>部分可观测的MDP</strong>(Partially Observable MDP (POMDP))。</p>
 <p>一个POMDP是在MDP的基础上增加一个观察层。也就是说，我们引入一个新变量o<sub>t</sub>，在给定状态s<sub>t</sub>下，o<sub>t</sub>遵循某个条件概率分布，即：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
@@ -335,7 +335,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2018-11-30T15:04:05.588Z" itemprop="dateUpdated">2018-11-30 23:04:05</time>
+    Last updated: <time datetime="2018-11-30T15:06:38.808Z" itemprop="dateUpdated">2018-11-30 23:06:38</time>
 </span><br>
 
 
