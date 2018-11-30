@@ -41,7 +41,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-a7caa1e44a8e32f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-94bdb1519f54fd29.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-85519346104d81d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-11-17T14:27:19.539Z">
+<meta property="og:updated_time" content="2018-11-30T15:09:09.861Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习笔记18: 微分动态规划">
 <meta name="twitter:description" content="上一节中我们介绍了一个特殊的MDP模型：线性二次型调节控制(LQR)。事实上很多问题都可以用LQR来解决，即使动态模型是非线性的。尽管LQR是一个非常漂亮的解决方案，但它还不够通用。我们以倒摆(inverted pendulum)问题为例来引出这一节的主题。倒摆问题的状态转换过程为：">
@@ -178,7 +178,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#动态模型的线性化"><span class="post-toc-number">1.</span> <span class="post-toc-text">动态模型的线性化</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#微分动态规划"><span class="post-toc-number">2.</span> <span class="post-toc-text">微分动态规划</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">参考资料</span></a></li></ol></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#动态模型的线性化"><span class="post-toc-number">1.</span> <span class="post-toc-text">动态模型的线性化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#微分动态规划"><span class="post-toc-number">2.</span> <span class="post-toc-text">微分动态规划</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">3.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">4.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
         </nav>
     </aside>
 
@@ -211,7 +211,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>其中函数F取决于角度的余弦值，显然这是一个非线性函数。那么我们的问题是：如何将该系统线性化处理？</p>
-<h1 id="动态模型的线性化"><a href="#动态模型的线性化" class="headerlink" title="动态模型的线性化"></a>动态模型的线性化</h1><p>假设在t时刻，系统大部分时间都处于状态s<sup>-</sup><sub>t</sub>，并且采取的行动在a<sup>-</sup><sub>t</sub>附近。对于倒摆问题来说，当系统到达最优解时，很显然系统采取的行动范围很小，且不会偏离竖直方向太远。</p>
+<h2 id="动态模型的线性化"><a href="#动态模型的线性化" class="headerlink" title="动态模型的线性化"></a>动态模型的线性化</h2><p>假设在t时刻，系统大部分时间都处于状态s<sup>-</sup><sub>t</sub>，并且采取的行动在a<sup>-</sup><sub>t</sub>附近。对于倒摆问题来说，当系统到达最优解时，很显然系统采取的行动范围很小，且不会偏离竖直方向太远。</p>
 <p>我们将会使用<strong>泰勒展开</strong>(Taylor expansion)的方法将动态模型线性化。先考虑一个简单的场景，当状态是一维的并且状态转换函数F与行动无关，我们可以得到：</p>
 <figure class="image-bubble">
                 <div class="img-lightbox">
@@ -237,7 +237,7 @@
                 <div class="image-caption"></div>
             </figure>
 <p>其中κ是一个常数，A和B是矩阵。这种形式和我们之前在LQR中做的假设非常相似。</p>
-<h1 id="微分动态规划"><a href="#微分动态规划" class="headerlink" title="微分动态规划"></a>微分动态规划</h1><p>当我们的目标是停留在某个状态s<sup>*</sup>附近时，上面介绍的方法可以很有效地解决。然而在某些情况下，目标会变得更为复杂。</p>
+<h2 id="微分动态规划"><a href="#微分动态规划" class="headerlink" title="微分动态规划"></a>微分动态规划</h2><p>当我们的目标是停留在某个状态s<sup>*</sup>附近时，上面介绍的方法可以很有效地解决。然而在某些情况下，目标会变得更为复杂。</p>
 <p>假设我们的目标是遵循某条<strong>轨迹</strong>(trajectory)，那么就需要用到<strong>微分动态规划</strong>(Differential Dynamic Programming (DDP))的方法了。这个方法会将轨迹按照时间片进行离散化，并为每个时间片建立中间目标。DDP的主要步骤如下：</p>
 <p><strong>步骤1</strong>: 选定<strong>标称轨迹</strong>(nominal trajectory)，这个是对我们想要追随的轨迹的近似。</p>
 <figure class="image-bubble">
@@ -315,7 +315,7 @@
     <div class="content">
         
 <span class="post-time">
-    Last updated: <time datetime="2018-11-17T14:27:19.539Z" itemprop="dateUpdated">2018-11-17 22:27:19</time>
+    Last updated: <time datetime="2018-11-30T15:09:09.861Z" itemprop="dateUpdated">2018-11-30 23:09:09</time>
 </span><br>
 
 
