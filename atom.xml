@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.secondplayer.top/"/>
-  <updated>2018-11-17T14:27:19.539Z</updated>
+  <updated>2018-11-30T15:04:05.588Z</updated>
   <id>http://www.secondplayer.top/</id>
   
   <author>
@@ -14,6 +14,149 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习笔记19: 线性二次型高斯</title>
+    <link href="http://www.secondplayer.top/2018/11/30/machine-learning-lqg/"/>
+    <id>http://www.secondplayer.top/2018/11/30/machine-learning-lqg/</id>
+    <published>2018-11-30T15:04:05.000Z</published>
+    <updated>2018-11-30T15:04:05.588Z</updated>
+    
+    <content type="html"><![CDATA[<p>在现实世界中，我们通常不能获取到所有的状态s<sub>t</sub>。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个<strong>观察</strong>(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是<strong>部分可观测的MDP</strong>(Partially Observable MDP (POMDP))。</p>
+<p>一个POMDP是在MDP的基础上增加一个观察层。也就是说，我们引入一个新变量o<sub>t</sub>，在给定状态s<sub>t</sub>下，o<sub>t</sub>遵循某个条件概率分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>一个有界的POMDP由如下六元组构成：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-96c2bacc61cdb0d2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在这个框架下，一般的策略是基于一组观察o<sub>1</sub>, …, o<sub>t</sub>维护一个<strong>信念状态</strong>(belief state)(状态的概率分布)。而一个POMDP的策略将信念状态映射成行动。</p>
+<p>这一小节我们将对LQR做一些扩展，假设我们观察到y<sub>t</sub>∈ R<sup>m</sup>并且有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b022fd4143af8c0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中C ∈ R<sup>m×n</sup>是一个<strong>压缩矩阵</strong>(compression matrix)，v<sub>t</sub>是噪音(和w<sub>t</sub>一样都是服从高斯分布)。注意现在奖励函数的定义保持不变，依旧是关于状态和行动的一个函数。由于概率分布是高斯的，所以信念状态也服从高斯分布。在这个新设定下，我们来看下求解最佳策略的方法。</p>
+<p><strong>步骤1</strong>: 首先基于观察求出可能状态的概率分布</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c26df652db810602.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中s<sub>t|t</sub>和Σ<sub>t|t</sub>分别为这个概率分布的均值和方差</p>
+<p><strong>步骤2</strong>: 使用均值s<sub>t|t</sub>作为s<sub>t</sub>的最佳近似</p>
+<p><strong>步骤3</strong>: 最佳行动a<sub>t</sub> := L<sub>t</sub>s<sub>t</sub>，其中L<sub>t</sub>的定义来自普通LQR算法</p>
+<p>由于LQR中我们已经证明结果与噪音无关，所有步骤2中我们可以用s<sub>t|t</sub>作为s<sub>t</sub>的最佳近似。</p>
+<p>其中步骤1我们需要详细展开讲一下。简单起见，我们先考虑动态模型与行动无关，假设：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-640658909b8ca1f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由于噪音都服从高斯分布，因此它们的联合分布也服从高斯分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-4a9169b8ba9f23da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>根据在因子分析中介绍的边缘概率分布公式，可得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d111687b24247f69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>然而计算边缘分布非常耗时，这需要我们对t×t的矩阵进行计算。由于计算一个逆矩阵的时间复杂度是O(t<sup>3</sup>)，而这个计算需要重复t次，因此总的时间复杂度是O(t<sup>4</sup>)。</p>
+<p>为了提高计算的速度，我们将采用<strong>卡尔曼滤波</strong>(Kalman filter)算法来计算均值和方差，这个算法的时间复杂度只有O(t)。</p>
+<p>卡尔曼滤波算法只有两步：<strong>预测步</strong>(predict step)和<strong>更新步</strong>(update step)。假设我们知道s<sub>t</sub>|y<sub>1</sub>, …, y<sub>t</sub>的概率分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-e1ac2b954077e0b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>那么：</p>
+<p><strong>预测步</strong>: 下一个状态的概率也服从高斯分布，并且：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b29cb8beab11ed0d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>更新步</strong>: 给定s<sub>t+1|t</sub>和Σ<sub>t+1|t</sub>，并且满足：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-530792c3411a8367.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以证明：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-0e5cbb5e21bea282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-eae168fbe89141e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d7c676d8eaaf8618.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>矩阵K<sub>t</sub>被称为<strong>卡尔曼增益</strong>(Kalman gain)。</p>
+<p>如果我们仔细看一下上面的公式，会发现我们并不需要上一个时刻的观察值。更新步中只需要依赖上一步的概率分布。总的来说，这个算法首先进行<strong>向前推算</strong>(forward pass)计算出K<sub>t</sub>, Σ<sub>t|t</sub>和s<sub>t|t</sub>，然后再进行<strong>向后推算</strong>(backward pass)(也就是LQR更新)计算出Φ<sub>t</sub>, Ψ<sub>t</sub>和L<sub>t</sub>，最后根据公式a<sub>t</sub><sup>*</sup> = L<sub>t</sub>s<sub>t|t</sub>计算出最优策略。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>由于在现实世界中通常不能获取到所有的状态，我们只能获取到观察值，因此在MDP的基础上增加一个观察层，这个模型叫做POMDP</li>
+<li>求解POMDP的最优策略需要用到卡尔曼滤波算法，该算法时间复杂度只有O(t)，可以大幅提高运算性能</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes13.pdf" target="_blank" rel="external">LQR, DDP and LQG</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/E/4/M6SGF6VB4_M6SGL3CE4.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在现实世界中，我们通常不能获取到所有的状态s&lt;sub&gt;t&lt;/sub&gt;。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个&lt;strong&gt;观察&lt;/strong&gt;(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="http://www.secondplayer.top/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习笔记18: 微分动态规划</title>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    <link rel="canonical" href="http://secondplayer.top/2018/11/30/machine-learning-lqg/">
+    
+    
+    <title>机器学习笔记19: 线性二次型高斯 | SecondPlayer&#39;s Blog | 我读书多，你别骗我</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="机器学习">
+    <meta name="description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习笔记19: 线性二次型高斯">
+<meta property="og:url" content="http://www.secondplayer.top/2018/11/30/machine-learning-lqg/index.html">
+<meta property="og:site_name" content="SecondPlayer&#39;s Blog">
+<meta property="og:description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-96c2bacc61cdb0d2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-b022fd4143af8c0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-c26df652db810602.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-640658909b8ca1f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-4a9169b8ba9f23da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-d111687b24247f69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-e1ac2b954077e0b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-b29cb8beab11ed0d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-530792c3411a8367.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-0e5cbb5e21bea282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-eae168fbe89141e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2245716-d7c676d8eaaf8618.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-11-30T15:04:05.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习笔记19: 线性二次型高斯">
+<meta name="twitter:description" content="在现实世界中，我们通常不能获取到所有的状态st。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个观察(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是部分可观测的MDP(Partially Observable MDP (POMDP))。 一个POMDP是在MDP">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="SecondPlayer&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/gravatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">secondplayer</h5>
+          <a href="mailto:secondplayer1990@gmail.com" title="secondplayer1990@gmail.com" class="mail">secondplayer1990@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/secondplayer" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="http://www.weibo.com/1901978451" target="_blank" >
+                <i class="icon icon-lg icon-weibo"></i>
+                Weibo
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">机器学习笔记19: 线性二次型高斯</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">机器学习笔记19: 线性二次型高斯</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-11-30T15:04:05.000Z" itemprop="datePublished" class="page-time">
+  2018-11-30
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">1.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">2.</span> <span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-machine-learning-lqg"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">机器学习笔记19: 线性二次型高斯</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-11-30 23:04:05" datetime="2018-11-30T15:04:05.000Z"  itemprop="datePublished">2018-11-30</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>在现实世界中，我们通常不能获取到所有的状态s<sub>t</sub>。比如一个自动驾驶汽车可以通过摄像头获取图像，但这仅仅是一个<strong>观察</strong>(observation)，并不能反映真实世界的所有状态。我们之前的讨论都是基于状态是可以完全获得的。考虑到真实世界并不是这样，我们需要一个新工具来对真实世界建模，这个工具就是<strong>部分可观测的MDP</strong>(Partially Observable MDP (POMDP))。</p>
+<p>一个POMDP是在MDP的基础上增加一个观察层。也就是说，我们引入一个新变量o<sub>t</sub>，在给定状态s<sub>t</sub>下，o<sub>t</sub>遵循某个条件概率分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-aa293ad673852cd5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>一个有界的POMDP由如下六元组构成：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-96c2bacc61cdb0d2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在这个框架下，一般的策略是基于一组观察o<sub>1</sub>, …, o<sub>t</sub>维护一个<strong>信念状态</strong>(belief state)(状态的概率分布)。而一个POMDP的策略将信念状态映射成行动。</p>
+<p>这一小节我们将对LQR做一些扩展，假设我们观察到y<sub>t</sub>∈ R<sup>m</sup>并且有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b022fd4143af8c0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中C ∈ R<sup>m×n</sup>是一个<strong>压缩矩阵</strong>(compression matrix)，v<sub>t</sub>是噪音(和w<sub>t</sub>一样都是服从高斯分布)。注意现在奖励函数的定义保持不变，依旧是关于状态和行动的一个函数。由于概率分布是高斯的，所以信念状态也服从高斯分布。在这个新设定下，我们来看下求解最佳策略的方法。</p>
+<p><strong>步骤1</strong>: 首先基于观察求出可能状态的概率分布</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-c26df652db810602.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中s<sub>t|t</sub>和Σ<sub>t|t</sub>分别为这个概率分布的均值和方差</p>
+<p><strong>步骤2</strong>: 使用均值s<sub>t|t</sub>作为s<sub>t</sub>的最佳近似</p>
+<p><strong>步骤3</strong>: 最佳行动a<sub>t</sub> := L<sub>t</sub>s<sub>t</sub>，其中L<sub>t</sub>的定义来自普通LQR算法</p>
+<p>由于LQR中我们已经证明结果与噪音无关，所有步骤2中我们可以用s<sub>t|t</sub>作为s<sub>t</sub>的最佳近似。</p>
+<p>其中步骤1我们需要详细展开讲一下。简单起见，我们先考虑动态模型与行动无关，假设：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-640658909b8ca1f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由于噪音都服从高斯分布，因此它们的联合分布也服从高斯分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-4a9169b8ba9f23da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>根据在因子分析中介绍的边缘概率分布公式，可得：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d111687b24247f69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>然而计算边缘分布非常耗时，这需要我们对t×t的矩阵进行计算。由于计算一个逆矩阵的时间复杂度是O(t<sup>3</sup>)，而这个计算需要重复t次，因此总的时间复杂度是O(t<sup>4</sup>)。</p>
+<p>为了提高计算的速度，我们将采用<strong>卡尔曼滤波</strong>(Kalman filter)算法来计算均值和方差，这个算法的时间复杂度只有O(t)。</p>
+<p>卡尔曼滤波算法只有两步：<strong>预测步</strong>(predict step)和<strong>更新步</strong>(update step)。假设我们知道s<sub>t</sub>|y<sub>1</sub>, …, y<sub>t</sub>的概率分布，即：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-e1ac2b954077e0b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>那么：</p>
+<p><strong>预测步</strong>: 下一个状态的概率也服从高斯分布，并且：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-b29cb8beab11ed0d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>更新步</strong>: 给定s<sub>t+1|t</sub>和Σ<sub>t+1|t</sub>，并且满足：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-530792c3411a8367.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以证明：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-0e5cbb5e21bea282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-eae168fbe89141e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/2245716-d7c676d8eaaf8618.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>矩阵K<sub>t</sub>被称为<strong>卡尔曼增益</strong>(Kalman gain)。</p>
+<p>如果我们仔细看一下上面的公式，会发现我们并不需要上一个时刻的观察值。更新步中只需要依赖上一步的概率分布。总的来说，这个算法首先进行<strong>向前推算</strong>(forward pass)计算出K<sub>t</sub>, Σ<sub>t|t</sub>和s<sub>t|t</sub>，然后再进行<strong>向后推算</strong>(backward pass)(也就是LQR更新)计算出Φ<sub>t</sub>, Ψ<sub>t</sub>和L<sub>t</sub>，最后根据公式a<sub>t</sub><sup>*</sup> = L<sub>t</sub>s<sub>t|t</sub>计算出最优策略。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>由于在现实世界中通常不能获取到所有的状态，我们只能获取到观察值，因此在MDP的基础上增加一个观察层，这个模型叫做POMDP</li>
+<li>求解POMDP的最优策略需要用到卡尔曼滤波算法，该算法时间复杂度只有O(t)，可以大幅提高运算性能</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>斯坦福大学机器学习课CS229讲义 <a href="http://cs229.stanford.edu/notes/cs229-notes13.pdf" target="_blank" rel="external">LQR, DDP and LQG</a></li>
+<li>网易公开课：机器学习课程 <a href="https://open.163.com/movie/2008/1/E/4/M6SGF6VB4_M6SGL3CE4.html" target="_blank" rel="external">双语字幕视频</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2018-11-30T15:04:05.588Z" itemprop="dateUpdated">2018-11-30 23:04:05</time>
+</span><br>
+
+
+        
+        <a href="/2018/11/30/machine-learning-lqg/" target="_blank" rel="external">http://www.secondplayer.top/2018/11/30/machine-learning-lqg/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://www.secondplayer.top">
+            <img src="/img/gravatar.png" alt="secondplayer">
+            secondplayer
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&title=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&title=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/11/17/machine-learning-ddp/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">机器学习笔记18: 微分动态规划</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Valine Comments -->
+    <div class="comments vcomment" id="comments"></div>
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+          return GUEST_INFO.indexOf(item) > -1
+        });
+        new Valine({
+            el: '#comments',
+            notify: 'false' == 'true',
+            verify: 'false' == 'true',
+            appId: "9Igi0ekMnJy1GPd4IP3n1AvX-gzGzoHsz",
+            appKey: "4YLq9PqAFlVgrofe0MbTQ746",
+            avatar: "",
+            placeholder: "Just say something",
+            guest_info: guest_info.length == 0 ? GUEST_INFO : guest_info,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat_pay_minicode.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat_pay_minicode.jpg" data-alipay="/img/alipay_qrcode.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>secondplayer &copy; 2016 - 2018</span>
+            <span>
+                
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&title=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&pic=http://www.secondplayer.top/img/gravatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&title=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《机器学习笔记19: 线性二次型高斯》 — SecondPlayer's Blog&url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/&via=http://www.secondplayer.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://www.secondplayer.top/2018/11/30/machine-learning-lqg/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACI0lEQVR42u3aQXKDMAwF0Nz/0ukBWuBLgs5gP68yDQU/Fook6/OJ1/dgJdfn1yT/NVoYGBivZXxP19E1v++Qb/Toc/LcQyoGBsYGjKNN5I9PHpxfn+8NAwMDIwmOSSBO8OefMTAwMHLG+TXVojTnYWBgYFRTtGqJW10P1uIYGBgvZORd9////Mj5BgYGxqsYkyDYO1SoJojRrjAwMJZm5AGuBzsvOwsFajLMgYGBsTQjf1ivrJ009ZolKwYGxnKMPMBVh8Dm3xbCOgYGxtKMyZhFryWX/w6MOogYGBjLMfIiMxmtqB5G3lbiYmBgLMeYDFVUm/vVF1FurmFgYCzNmPMmBwzVNt8f12BgYGzAqI5BTNpkT6ShGBgYazOqx413HXP28BdpIgYGxgaMvCnWW70EtBCgMTAwFmXMA2tvPKJ3DHCR4WJgYGzASNK4XrGaBN/eIQQGBsZujDwsJuMUvZwtb+RdpIYYGBgLMaot+Ntm0MbDFhgYGLsxeoNf1eTvfCs5KWq6YWBgbMbotdXyu90WmjEwMDZgVG/XC47nd6hiKl9jYGC8ldEbmMgTwWpamfy98IYwMDCWYOQrb7c9cZBZLbYxMDDWY+RBNn8r5wE0L3STYQ4MDIx9GHng6x1hzovYi8QUAwMDI97WZDhs8uIwMDAwqg/rla859YaAi4GB8UJG7zCgWmpWA3eCwcDA2IFRDXmTcYpeylgtrTEwMBZi/AAnNEupPbHMaAAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+lazyScripts.push('//s95.cnzz.com/z_stat.php?id=1259512342&web_id=1259512342')
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
